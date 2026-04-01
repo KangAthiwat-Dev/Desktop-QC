@@ -20,7 +20,7 @@ class CriteriaScreen(BaseScreen):
         super().__init__(parent, app)
 
         # ── title ─────────────────────────────────────────────────────────
-        self.card_header(self, "เกณฑ์และวิธีการแก้ไขปัญหา", bg="#dbdbdb", size=24)
+        self.card_header(self, "เกณฑ์และวิธีการแก้ไขปัญหา", size=24)
 
 
         # ── filter bar (ซ่อนได้) ──────────────────────────────────────────
@@ -63,8 +63,8 @@ class CriteriaScreen(BaseScreen):
         # ── bottom bar ────────────────────────────────────────────────────
         btn_bar = tk.Frame(self, bg=BG_COLOR)
         btn_bar.pack(side="bottom", fill="x", padx=20, pady=12)
-        self.primary_btn(btn_bar, "ย้อนกลับ", self._back,
-                         fontsize=26, width=12).pack(side="right", padx=4)
+        self.back_btn(btn_bar, "ย้อนกลับ", self._back,
+                      fontsize=26, width=12).pack(side="right", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────────
 
@@ -113,10 +113,10 @@ class CriteriaScreen(BaseScreen):
 
         # ── header row ────────────────────────────────────────────────
         font_h = thai_font(26, "bold")
-        _cell(_COL_HEADS[0], 0, BG_COLOR, font_h)
+        _cell(_COL_HEADS[0], 0, "#FFFFFF", font_h)
         tk.Frame(self._body, bg=BORDER_CLR, width=1).grid(
             row=r[0], column=1, sticky="ns")
-        _cell(_COL_HEADS[1], 2, BG_COLOR, font_h)
+        _cell(_COL_HEADS[1], 2, "#FFFFFF", font_h)
         r[0] += 1
         _hsep()
 

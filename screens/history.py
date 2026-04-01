@@ -1,3 +1,7 @@
+import os
+import platform
+import subprocess
+import tempfile
 import tkinter as tk
 from tkinter import ttk
 from screens.base import (
@@ -7,17 +11,30 @@ from config import SCREEN_TYPES, PERIODS, PERIOD_LABELS
 import database
 
 
+def _send_to_printer(path: str):
+    """ส่งไฟล์ PDF ไปยังเครื่องพิมพ์ default"""
+    system = platform.system()
+    if system == "Darwin":
+        result = subprocess.run(["open", "--print", path])
+        if result.returncode != 0:
+            subprocess.run(["open", path], check=True)
+    elif system == "Windows":
+        os.startfile(path, "print")
+    else:
+        subprocess.run(["lp", path], check=True)
+
+
 class HistoryScreen(BaseScreen):
     def __init__(self, parent, app):
         super().__init__(parent, app)
 
-        self.card_header(self, "ประวัติการทดสอบ", bg="#dbdbdb", size=24)
+        self.card_header(self, "ประวัติการทดสอบ", size=24)
 
         # ── search bar ────────────────────────────────────────────────────
         search_bar = tk.Frame(self, bg=BG_COLOR)
         search_bar.pack(fill="x", padx=20, pady=(8, 4))
 
-        tk.Label(search_bar, text="โรงพยาบาล:", font=thai_font(26),
+        tk.Label(search_bar, text="ชื่อผู้ประเมิน:", font=thai_font(26),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.hospital_var = tk.StringVar()
         hospital_entry = tk.Entry(search_bar, textvariable=self.hospital_var,
@@ -42,8 +59,10 @@ class HistoryScreen(BaseScreen):
                                                     period_choices)
         self._period_menu.pack(side="left", padx=(4, 16))
 
-        self.primary_btn(search_bar, "ค้นหา", self._search,
-                         fontsize=26, width=8).pack(side="left", padx=4)
+        search_icon = tk.Label(search_bar, text="🔍", font=thai_font(26),
+                               bg=BG_COLOR, cursor="hand2")
+        search_icon.pack(side="left", padx=4)
+        search_icon.bind("<ButtonRelease-1>", lambda _: self._search())
 
         # ── table ─────────────────────────────────────────────────────────
         table_frame = tk.Frame(self, bg=BG_COLOR)
@@ -91,11 +110,13 @@ class HistoryScreen(BaseScreen):
                          self._view_selected, fontsize=26, width=14).pack(side="left", padx=4)
         self.primary_btn(btn_bar, "ดาวน์โหลด PDF",
                          self._download_selected, fontsize=26, width=16).pack(side="left", padx=4)
+        self.primary_btn(btn_bar, "พิมพ์",
+                         self._print_selected, fontsize=26, width=10).pack(side="left", padx=4)
         self._hint_lbl = tk.Label(btn_bar, text="", font=thai_font(22),
                                   bg=BG_COLOR, fg="#cc0000")
         self._hint_lbl.pack(side="left", padx=8)
-        self.primary_btn(btn_bar, "กลับหน้าหลัก",
-                         lambda: app.show("home"), fontsize=26, width=14).pack(side="right", padx=4)
+        self.back_btn(btn_bar, "กลับหน้าหลัก",
+                      lambda: app.show("home"), fontsize=26, width=14).pack(side="right", padx=4)
 
         self._rows: list[dict] = []
 
@@ -137,7 +158,7 @@ class HistoryScreen(BaseScreen):
 
     def _search(self):
         rows = database.search_evaluations(
-            hospital=self.hospital_var.get().strip(),
+            evaluator=self.hospital_var.get().strip(),
             screen_type=self.type_var.get(),
             period=self.period_var.get(),
         )
@@ -218,6 +239,34 @@ class HistoryScreen(BaseScreen):
             else:
                 messagebox.showinfo("บันทึกสำเร็จ",
                                     f"บันทึก PDF {len(ids)} ไฟล์ เรียบร้อย\nโฟลเดอร์: {folder}")
+
+    def _print_selected(self):
+        from config import TEST_CONFIG
+        from reports.pdf_export import export_history_result
+
+        ids = [int(iid) for iid in self.tree.selection()]
+        if not ids:
+            self._hint_lbl.configure(text="กรุณาเลือกรายการที่ต้องการพิมพ์ก่อน")
+            return
+        self._hint_lbl.configure(text="")
+
+        from tkinter import messagebox
+        if not messagebox.askyesno("ยืนยันการพิมพ์", f"ต้องการพิมพ์รายการที่เลือก {len(ids)} ชุด ใช่หรือไม่?"):
+            return
+        try:
+            for eval_id in ids:
+                ev = database.get_evaluation(eval_id)
+                if not ev:
+                    continue
+                groups = TEST_CONFIG.get(ev["screen_type"], {}).get(ev["period"], [])
+                with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+                    tmp = f.name
+                r = database.get_eval_rank(ev["screen_type"], ev["period"], ev["id"])
+                export_history_result(ev, groups, tmp, rank=r)
+                _send_to_printer(tmp)
+            messagebox.showinfo("ส่งพิมพ์สำเร็จ", f"ส่งรายการพิมพ์ {len(ids)} ชุด เรียบร้อยแล้ว")
+        except Exception as e:
+            messagebox.showerror("ข้อผิดพลาด", f"ไม่สามารถพิมพ์ได้\n{e}")
 
     def _view_selected(self):
         eval_id = self._selected_id()

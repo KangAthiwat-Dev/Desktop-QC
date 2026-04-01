@@ -1,17 +1,19 @@
 import tkinter as tk
 import platform
 
-# ── Colors (Windows-classic palette) ────────────────────────────────────────
-BG_COLOR   = "#c4c4c4"
-CARD_COLOR = "#dbdbdb"
-HEADER_BG  = "#c4c4c4"
-TEXT_COLOR = "#000000"
-BTN_BG     = "#c4c4c4"
-BTN_ACTIVE = "#adadad"
-PASS_GREEN = "#1a6e1a"
-FAIL_RED   = "#cc0000"
-ENTRY_BG   = "#ffffff"
-BORDER_CLR = "#888888"
+# ── Colors ───────────────────────────────────────────────────────────────────
+BG_COLOR   = "#BFBFBF"   # medium gray background
+CARD_COLOR = "#FFFFFF"   # white card surface
+HEADER_BG  = "#474747"   # dark charcoal header
+HDR_TEXT   = "#FFFFFF"   # white text on dark header
+TEXT_COLOR = "#474747"   # dark text on light surfaces
+BTN_BG     = "#FD9E50"   # orange button
+BTN_ACTIVE = "#e08840"   # darker orange on hover
+BTN_FG     = "#474747"   # dark text on orange (better contrast)
+PASS_GREEN = "#16a34a"   # green
+FAIL_RED   = "#dc2626"   # red
+ENTRY_BG   = "#FFFFFF"   # white input
+BORDER_CLR = "#474747"   # dark border / separator
 
 # Fixed card sizes (pixels) — ใช้เหมือนกันทุกหน้า
 CARD_W  = 820   # ความกว้าง card มาตรฐาน
@@ -37,6 +39,17 @@ def thai_font(size: int = 14, weight: str = "normal") -> tuple:
 
     bold = "bold" if weight == "bold" else "normal"
     return (family, size, bold)
+
+
+def _round_rect(canvas, x1, y1, x2, y2, r, **kw):
+    """วาด rounded rectangle บน Canvas ด้วย smooth polygon."""
+    pts = [x1+r, y1,  x2-r, y1,
+           x2,   y1,  x2,   y1+r,
+           x2,   y2-r, x2,  y2,
+           x2-r, y2,  x1+r, y2,
+           x1,   y2,  x1,   y2-r,
+           x1,   y1+r, x1,  y1]
+    canvas.create_polygon(pts, smooth=True, **kw)
 
 
 class BaseScreen(tk.Frame):
@@ -74,35 +87,104 @@ class BaseScreen(tk.Frame):
 
     def primary_btn(self, parent, text: str, command,
                     width: int = 14, height=None, fontsize: int = 13,
-                    pady: int = None, padx: int = None):
-        _pady = pady if pady is not None else max(10, fontsize // 2)
-        _padx = padx if padx is not None else max(16, fontsize)
+                    pady: int = None, padx: int = None,
+                    btn_bg: str = None, btn_fg: str = None, btn_active: str = None):
+        _bg     = btn_bg     or BTN_BG
+        _fg     = btn_fg     or BTN_FG
+        _active = btn_active or BTN_ACTIVE
 
-        # wrapper frame = border
-        wrapper = tk.Frame(parent, bg=BORDER_CLR, cursor="hand2")
+        _pady = pady if pady is not None else max(8, fontsize // 2)
+        _padx = padx if padx is not None else max(14, fontsize)
 
+        # wrapper frame ใช้เป็น 1px border
+        wrapper = tk.Frame(parent, bg=_active, cursor="hand2")
         btn = tk.Label(
             wrapper, text=text,
             font=thai_font(fontsize),
-            bg=BTN_BG, fg=TEXT_COLOR,
+            bg=_bg, fg=_fg,
             relief="flat",
             highlightthickness=0,
             padx=_padx,
             pady=_pady,
             width=width,
+            justify="center",
             cursor="hand2",
         )
         btn.pack(padx=1, pady=1)
 
         for widget in (wrapper, btn):
             widget.bind("<ButtonRelease-1>", lambda _: command())
-            widget.bind("<Enter>", lambda _: btn.configure(bg=BTN_ACTIVE))
-            widget.bind("<Leave>", lambda _: btn.configure(bg=BTN_BG))
-
+            widget.bind("<Enter>",           lambda _: btn.configure(bg=_active))
+            widget.bind("<Leave>",           lambda _: btn.configure(bg=_bg))
         return wrapper
 
-    def grey_btn(self, parent, text: str, command, width: int = 14, height=None):
-        return self.primary_btn(parent, text, command, width)
+    def grey_btn(self, parent, text: str, command, width: int = 14, height=None,
+                 fontsize: int = 13, pady: int = None, padx: int = None):
+        """ปุ่มสีเทา (#BFBFBF) สำหรับ action รอง"""
+        return self.primary_btn(parent, text, command, width, fontsize=fontsize,
+                                pady=pady, padx=padx,
+                                btn_bg="#BFBFBF", btn_fg="#474747", btn_active="#a8a8a8")
+
+    def back_btn(self, parent, text: str, command, width: int = 14, height=None,
+                 fontsize: int = 13, pady: int = None, padx: int = None):
+        """ปุ่มย้อนกลับ สี #BFBFBF"""
+        return self.primary_btn(parent, text, command, width, fontsize=fontsize,
+                                pady=pady, padx=padx,
+                                btn_bg="#EEEEEE", btn_fg="#474747", btn_active="#c4c4c4")
+
+    def dark_btn(self, parent, text: str, command, width: int = 14, height=None,
+                 fontsize: int = 13, pady: int = None, padx: int = None):
+        """ปุ่มสีเข้ม (#474747 + ข้อความขาว) สำหรับ action หลักในหน้าคำถาม"""
+        return self.primary_btn(parent, text, command, width, fontsize=fontsize,
+                                pady=pady, padx=padx,
+                                btn_bg="#474747", btn_fg="#FFFFFF", btn_active="#5a5a5a")
+
+    def rounded_card(self, parent, width: int, height: int, radius: int = 20):
+        """Card ขอบมน — คืน (canvas, inner_frame)"""
+        cvs = tk.Canvas(parent, width=width, height=height,
+                        bg=self._bg(parent), highlightthickness=0)
+        _round_rect(cvs, 0, 0, width, height, radius,
+                    fill=CARD_COLOR, outline=BORDER_CLR)
+        # inset เพื่อให้มุม Frame อยู่ภายในส่วนโค้ง
+        inset = max(1, int(radius * 0.30) + 1)
+        inner = tk.Frame(cvs, bg=CARD_COLOR, highlightthickness=0)
+        cvs.create_window(width // 2, height // 2, window=inner, anchor="center",
+                          width=width - 2 * inset, height=height - 2 * inset)
+        return cvs, inner
+
+    def confirm_dialog(self, title: str, message: str,
+                       yes_text: str = "ใช่", no_text: str = "ยกเลิก") -> bool:
+        """Custom confirm dialog — ปุ่ม Yes สีน้ำเงิน, คืน True/False"""
+        result = [False]
+
+        dlg = tk.Toplevel(self.app)
+        dlg.title(title)
+        dlg.configure(bg=CARD_COLOR)
+        dlg.resizable(False, False)
+        dlg.transient(self.app)
+        dlg.grab_set()
+
+        w, h = 420, 180
+        px = self.app.winfo_x() + self.app.winfo_width()  // 2 - w // 2
+        py = self.app.winfo_y() + self.app.winfo_height() // 2 - h // 2
+        dlg.geometry(f"{w}x{h}+{px}+{py}")
+
+        tk.Label(dlg, text=message, font=thai_font(22),
+                 bg=CARD_COLOR, fg=TEXT_COLOR,
+                 wraplength=380, justify="center").pack(expand=True, pady=(20, 10))
+
+        btn_bar = tk.Frame(dlg, bg=CARD_COLOR)
+        btn_bar.pack(fill="x", padx=24, pady=(0, 16))
+
+        def _yes():
+            result[0] = True
+            dlg.destroy()
+
+        self.primary_btn(btn_bar, yes_text, _yes, fontsize=22, width=10).pack(side="left", padx=(0, 8))
+        self.grey_btn(btn_bar, no_text, dlg.destroy, fontsize=22, width=10).pack(side="left")
+
+        dlg.wait_window()
+        return result[0]
 
     def card(self, parent, **kwargs):
         return tk.Frame(
@@ -113,15 +195,15 @@ class BaseScreen(tk.Frame):
             **kwargs,
         )
 
-    def card_header(self, card, text: str, bg: str = HEADER_BG, size: int = 12):
+    def card_header(self, card, text: str, bg: str = HEADER_BG, size: int = 12,
+                    fg: str = HDR_TEXT):
         hdr = tk.Canvas(card, height=max(31, size + 18), bg=bg, highlightthickness=0)
         hdr.pack(fill="x", side="top")
         h = max(30, size + 17)
         hdr.bind("<Configure>", lambda e: (
             hdr.delete("all"),
             hdr.create_rectangle(0, 0, e.width, h, fill=bg, outline=""),
-            hdr.create_line(0, h, e.width, h, fill=BORDER_CLR),
-            hdr.create_text(12, h // 2, text=text, font=thai_font(size), fill=TEXT_COLOR, anchor="w"),
+            hdr.create_text(16, h // 2, text=text, font=thai_font(size, "bold"), fill=fg, anchor="w"),
         ))
         return hdr
 

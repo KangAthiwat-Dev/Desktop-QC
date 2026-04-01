@@ -11,14 +11,14 @@ class UserListScreen(BaseScreen):
         card = self.card(self)
         card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_HL)
 
-        self.card_header(card, "รายชื่อผู้ใช้งาน", bg="white", size=24)
+        self.card_header(card, "รายชื่อผู้ใช้งาน", size=24)
 
         # header row
-        hdr = tk.Frame(card, bg="#c4c4c4")
+        hdr = tk.Frame(card, bg="#FFFFFF")
         hdr.pack(fill="x", padx=16, pady=(12, 0))
-        tk.Label(hdr, text="ชื่อ", font=thai_font(24, "bold"), bg="#c4c4c4",
+        tk.Label(hdr, text="ชื่อ", font=thai_font(24, "bold"), bg="#FFFFFF",
                  fg=TEXT_COLOR, width=16, anchor="w").pack(side="left", padx=(4, 0))
-        tk.Label(hdr, text="นามสกุล", font=thai_font(24, "bold"), bg="#c4c4c4",
+        tk.Label(hdr, text="นามสกุล", font=thai_font(24, "bold"), bg="#FFFFFF",
                  fg=TEXT_COLOR, width=16, anchor="w").pack(side="left", padx=(8, 0))
         tk.Frame(card, bg=BORDER_CLR, height=1).pack(fill="x", padx=16, pady=(4, 0))
 
@@ -96,8 +96,8 @@ class UserListScreen(BaseScreen):
         # ── ปุ่มล่าง ──────────────────────────────────────────────────────────
         btn_row = tk.Frame(card, bg=CARD_COLOR)
         btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
-        self.primary_btn(btn_row, "ย้อนกลับ", lambda: app.show("register"),
-                         fontsize=24, width=12).pack(side="left")
+        self.back_btn(btn_row, "ย้อนกลับ", lambda: app.show("register"),
+                      fontsize=24, width=12).pack(side="left")
 
         # state
         self._pending_user: dict | None = None

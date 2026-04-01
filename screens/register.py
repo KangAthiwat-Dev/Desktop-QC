@@ -11,7 +11,7 @@ class RegisterScreen(BaseScreen):
         card = self.card(self)
         card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_HL)
 
-        self.card_header(card, "ลงทะเบียน", bg="white", size=24)
+        self.card_header(card, "ลงทะเบียน", size=24)
 
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=36, pady=16)
@@ -96,7 +96,7 @@ class RegisterScreen(BaseScreen):
         btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
         self.primary_btn(btn_row, "เพิ่มผู้ใช้",     self._add_user,   fontsize=24, width=14).pack(side="right", padx=4)
         self.primary_btn(btn_row, "ดูรายชื่อผู้ใช้", self._show_users, fontsize=24, width=14).pack(side="right", padx=4)
-        self.primary_btn(btn_row, "ย้อนกลับ",         self._back,       fontsize=24, width=12).pack(side="left",  padx=4)
+        self.back_btn(btn_row, "ย้อนกลับ",         self._back,       fontsize=24, width=12).pack(side="left",  padx=4)
 
     # ── mode helpers ──────────────────────────────────────────────────────────
 

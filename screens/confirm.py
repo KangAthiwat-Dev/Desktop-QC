@@ -10,7 +10,7 @@ class ConfirmScreen(BaseScreen):
         card = self.card(self)
         card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_H)
 
-        self.card_header(card, "ยืนยันข้อมูล", bg="white", size=24)
+        self.card_header(card, "ยืนยันข้อมูล", size=24)
 
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=36, pady=20)

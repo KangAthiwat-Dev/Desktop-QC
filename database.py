@@ -1,14 +1,29 @@
 """
 database.py — SQLite persistence layer
-DB file: <app_dir>/data/screenqc.db
+DB file: <app_dir>/data/screenqc.db  (dev)
+         ~/Library/Application Support/DesktopQC/data/screenqc.db  (bundled macOS)
+         %APPDATA%/DesktopQC/data/screenqc.db  (bundled Windows)
 """
 
 import os
+import sys
 import sqlite3
 import json
 from datetime import datetime
 
-DB_DIR  = os.path.join(os.path.dirname(__file__), "data")
+if getattr(sys, "frozen", False):
+    # Running as PyInstaller bundle — use persistent user data directory
+    import platform
+    if platform.system() == "Darwin":
+        _APP_DIR = os.path.expanduser("~/Library/Application Support/DesktopQC")
+    elif platform.system() == "Windows":
+        _APP_DIR = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "DesktopQC")
+    else:
+        _APP_DIR = os.path.expanduser("~/.DesktopQC")
+else:
+    _APP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DB_DIR  = os.path.join(_APP_DIR, "data")
 DB_PATH = os.path.join(DB_DIR, "screenqc.db")
 
 
@@ -272,6 +287,7 @@ def get_evaluation(evaluation_id: int) -> dict | None:
 
 def search_evaluations(
     hospital: str = "",
+    evaluator: str = "",
     screen_type: str = "",
     period: str = "",
     date_from: str = "",
@@ -285,6 +301,9 @@ def search_evaluations(
     if hospital:
         sql  += " AND hospital_name LIKE ?"
         args.append(f"%{hospital}%")
+    if evaluator:
+        sql  += " AND evaluator_name LIKE ?"
+        args.append(f"%{evaluator}%")
     if screen_type:
         sql  += " AND screen_type=?"
         args.append(screen_type)

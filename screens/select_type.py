@@ -9,30 +9,30 @@ class SelectTypeScreen(BaseScreen):
         card = self.card(self)
         card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_HL)
 
-        self.card_header(card, "โปรแกรมตรวจคุณภาพหน้าจอ", bg="white", size=24)
+        self.card_header(card, "โปรแกรมตรวจคุณภาพหน้าจอ", size=24)
 
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True)
 
-        self.title_label(body, "โปรดเลือกชนิดหน้าจอ", size=50).pack(pady=(40, 50))
+        self.title_label(body, "โปรดเลือกชนิดหน้าจอ", size=36).pack(pady=(32, 36))
 
         types = [
             ("diagnostic", "หน้าจอชนิดใช้วินิจฉัยทางการแพทย์\n(Diagnostic)"),
             ("modality",   "หน้าจอชนิดใช้แสดงทางการแพทย์\n(Modality)"),
-            ("clinic",     "หน้าจอตรวจทานทางการแพทย์ (Clinical Review)\nและหน้าจอสำหรับงานเวชระเบียน\n(Electronic Health Record)"),
+            ("clinic",     "หน้าจอตรวจทานทางการแพทย์และหน้าจอสำหรับงานเวชระเบียน \n(Clinical Review & Electronic Health Record)"),
         ]
 
         for key, label in types:
             self.primary_btn(
                 body, label,
                 command=lambda k=key: self._select(k),
-                fontsize=26, padx=20, pady=6,
+                fontsize=32, padx=20, pady=6,
                 width=46,
             ).pack(pady=8)
 
         bottom = tk.Frame(card, bg=CARD_COLOR)
         bottom.pack(side="bottom", fill="x", padx=16, pady=12)
-        self.primary_btn(bottom, "ย้อนกลับ", lambda: app.show("home"), fontsize=26, width=12).pack(side="right", padx=4)
+        self.back_btn(bottom, "ย้อนกลับ", lambda: app.show("home"), fontsize=26, width=12).pack(side="right", padx=4)
 
     def _select(self, screen_type: str):
         self.app.session["screen_type"] = screen_type

@@ -17,10 +17,12 @@ class InstructionsScreen(BaseScreen):
         card = self.card(self)
         card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_H)
 
-        self.card_header(card, "คำแนะนำในการทดสอบระบบ", bg="white", size=24)
+        self.card_header(card, "คำแนะนำในการทดสอบระบบ", size=24)
 
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=30, pady=28)
+        
+        self.title_label(body, "คำแนะนำก่อนการประเมิน", size=35).pack(pady=(6, 24))
 
         for line in INSTRUCTION_LINES:
             tk.Label(body, text=line, font=thai_font(28), bg=CARD_COLOR,
@@ -30,7 +32,7 @@ class InstructionsScreen(BaseScreen):
         btn_frame = tk.Frame(card, bg=CARD_COLOR)
         btn_frame.pack(side="bottom", fill="x", padx=16, pady=12)
         self.primary_btn(btn_frame, "ถัดไป",    self._next,                  fontsize=26, width=12).pack(side="right", padx=4)
-        self.primary_btn(btn_frame, "ย้อนกลับ", lambda: app.show("confirm"), fontsize=26, width=12).pack(side="right", padx=4)
+        self.back_btn(btn_frame, "ย้อนกลับ", lambda: app.show("confirm"), fontsize=26, width=12).pack(side="right", padx=4)
 
     def on_show(self, **_):
         session = self.app.session

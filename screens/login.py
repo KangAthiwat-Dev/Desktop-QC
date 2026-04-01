@@ -30,7 +30,7 @@ class LoginScreen(BaseScreen):
         card = self.card(self)
         card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_HL)
 
-        self.card_header(card, "Log-in", bg="white", size=24)
+        self.card_header(card, "Log-in", size=24)
 
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=36, pady=20)
@@ -96,7 +96,7 @@ class LoginScreen(BaseScreen):
         btn_row = tk.Frame(card, bg=CARD_COLOR)
         btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
         self.primary_btn(btn_row, "ถัดไป",    self._next, fontsize=26, width=12).pack(side="right", padx=4)
-        self.primary_btn(btn_row, "ย้อนกลับ", self._back, fontsize=26, width=12).pack(side="right", padx=4)
+        self.back_btn(btn_row, "ย้อนกลับ", self._back, fontsize=26, width=12).pack(side="right", padx=4)
 
     # ── helpers ───────────────────────────────────────────────────────────────
 

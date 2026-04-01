@@ -1,3 +1,7 @@
+import os
+import platform
+import subprocess
+import tempfile
 import tkinter as tk
 from tkinter import ttk
 from screens.base import (
@@ -7,6 +11,18 @@ from screens.base import (
 from config import TEST_CONFIG
 
 
+def _send_to_printer(path: str):
+    system = platform.system()
+    if system == "Darwin":
+        result = subprocess.run(["open", "--print", path])
+        if result.returncode != 0:
+            subprocess.run(["open", path], check=True)
+    elif system == "Windows":
+        os.startfile(path, "print")
+    else:
+        subprocess.run(["lp", path], check=True)
+
+
 class HistoryResultScreen(BaseScreen):
     """Read-only version of results.py — shows a saved evaluation from history."""
 
@@ -14,7 +30,7 @@ class HistoryResultScreen(BaseScreen):
         super().__init__(parent, app)
 
     
-        self.card_header(self, "ผลการประเมิน (ประวัติ)", bg="#dbdbdb", size=24)
+        self.card_header(self, "ผลการประเมิน (ประวัติ)", size=24)
 
         # ── info bar ──────────────────────────────────────────────────────
         info_bar = tk.Frame(self, bg=BG_COLOR, bd=1, relief="solid")
@@ -30,11 +46,11 @@ class HistoryResultScreen(BaseScreen):
         style = ttk.Style()
         style.configure("HistRes.Treeview",
                          font=thai_font(26), rowheight=36,
-                         background=CARD_COLOR, fieldbackground=CARD_COLOR,
+                         background="#FFFFFF", fieldbackground=CARD_COLOR,
                          foreground=TEXT_COLOR)
         style.configure("HistRes.Treeview.Heading",
                          font=thai_font(26, "bold"),
-                         background=BG_COLOR, foreground=TEXT_COLOR, relief="flat")
+                         background="#FFFFFF", foreground=TEXT_COLOR, relief="flat")
         style.map("HistRes.Treeview", background=[("selected", "#b0c8e8")])
 
         cols = ("หัวข้อการประเมิน", "ผลการประเมิน", "หมายเหตุ")
@@ -66,8 +82,10 @@ class HistoryResultScreen(BaseScreen):
                          self._compare, fontsize=26, width=22).pack(side="left", padx=4)
         self.primary_btn(btn_bar, "ดาวน์โหลด PDF",
                          self._export_pdf, fontsize=26, width=16).pack(side="left", padx=4)
-        self.primary_btn(btn_bar, "กลับประวัติ",
-                         lambda: app.show("history"), fontsize=26, width=14).pack(side="right", padx=4)
+        self.primary_btn(btn_bar, "พิมพ์",
+                         self._print_result, fontsize=26, width=10).pack(side="left", padx=4)
+        self.back_btn(btn_bar, "กลับประวัติ",
+                      lambda: app.show("history"), fontsize=26, width=14).pack(side="right", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────────
 
@@ -85,7 +103,7 @@ class HistoryResultScreen(BaseScreen):
         rank = self._current_rank
         baseline_mark = "  ★ Baseline" if ev.get("is_baseline") else ""
         self.info_lbl.configure(
-            text=f"{ev.get('hospital_name','')}  |  {ev.get('evaluator_name','')}  |  ครั้งที่ {rank}  |  {stype}  |  {period}  |  {ev.get('eval_datetime','')}{baseline_mark}"
+            text=f"โรงพยาบาล: {ev.get('hospital_name','')}  |  ผู้ประเมิน: {ev.get('evaluator_name','')}  |  ครั้งที่ {rank}  |  ประเภท: {stype}  |  รอบ: {period}  |  วันที่: {ev.get('eval_datetime','')}{baseline_mark}"
         )
 
         # rebuild table from TEST_CONFIG
@@ -103,12 +121,16 @@ class HistoryResultScreen(BaseScreen):
                 item_id = item["item_id"]
                 ans = answers.get(item_id)
                 if ans:
-                    result_text = "ผ่าน ✓" if ans["passed"] else "ไม่ผ่าน ✗"
+                    result_text = "ผ่าน" if ans["passed"] else "ไม่ผ่าน"
                     tag = "pass" if ans["passed"] else "fail"
                     notes = ans.get("notes", "")
                     if ans.get("failed_channels"):
-                        ch_str = ", ".join(str(c) for c in ans["failed_channels"])
-                        notes = f"ช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
+                        fc = ans["failed_channels"]
+                        ch_str = ", ".join(str(c) for c in fc)
+                        if item.get("question_type") == "yes_no_channels_text":
+                            notes = f"จำนวนภาพที่ Pixel ไม่สม่ำเสมอ: {len(fc)} ช่อง  \nค่า Pixel ของช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
+                        else:
+                            notes = f"ค่า Pixel ของช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
                 else:
                     result_text = "ไม่ได้ตอบ"
                     tag = "no_ans"
@@ -119,6 +141,26 @@ class HistoryResultScreen(BaseScreen):
                                   tags=(tag,))
 
     # ── actions ───────────────────────────────────────────────────────────
+
+    def _print_result(self):
+        from tkinter import messagebox
+        from reports.pdf_export import export_history_result
+        ev = self.app.session.get("history_eval")
+        if not ev:
+            return
+        if not messagebox.askyesno("ยืนยันการพิมพ์", "ต้องการพิมพ์ผลการประเมินนี้ ใช่หรือไม่?"):
+            return
+        try:
+            screen_type = ev.get("screen_type", "")
+            period_key  = ev.get("period", "")
+            groups = TEST_CONFIG.get(screen_type, {}).get(period_key, [])
+            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+                tmp = f.name
+            export_history_result(ev, groups, tmp, rank=getattr(self, "_current_rank", 0))
+            _send_to_printer(tmp)
+            messagebox.showinfo("ส่งพิมพ์สำเร็จ", "ส่งรายการพิมพ์เรียบร้อยแล้ว")
+        except Exception as e:
+            messagebox.showerror("ข้อผิดพลาด", f"ไม่สามารถพิมพ์ได้\n{e}")
 
     def _export_pdf(self):
         from tkinter import filedialog, messagebox

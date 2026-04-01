@@ -7,7 +7,9 @@ def _install_font():
     """คัดลอก THSarabunNew.ttf เข้า ~/Library/Fonts/ บน macOS อัตโนมัติ"""
     if platform.system() != "Darwin":
         return
-    here = os.path.dirname(os.path.abspath(__file__))
+    import sys
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    here = base
     src = os.path.join(here, "assets", "fonts", "THSarabunNew.ttf")
     if not os.path.exists(src):
         return
@@ -23,7 +25,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("โปรแกรมตรวจคุณภาพหน้าจอ")
+        self.title("TG270 Monitor QC System")
         self.resizable(True, True)
         self.minsize(900, 600)
         self.configure(bg=BG_COLOR)

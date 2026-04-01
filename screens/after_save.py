@@ -68,8 +68,8 @@ class AfterSaveScreen(BaseScreen):
                          self._view_results, fontsize=26, width=20).pack(side="left", padx=4)
         self.primary_btn(btn_bar, "ทำการเทียบกับ Baseline",
                          self._compare, fontsize=26, width=18).pack(side="left", padx=4)
-        self.primary_btn(btn_bar, "กลับหน้าหลัก",
-                         self._home, fontsize=26, width=20).pack(side="right", padx=4)
+        self.back_btn(btn_bar, "กลับหน้าหลัก",
+                      self._home, fontsize=26, width=20).pack(side="right", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────────
 

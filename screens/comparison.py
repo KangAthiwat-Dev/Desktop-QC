@@ -1,17 +1,36 @@
+import os
+import platform
+import subprocess
+import tempfile
 import tkinter as tk
 from tkinter import ttk
 from screens.base import (
     BaseScreen, BG_COLOR, CARD_COLOR, TEXT_COLOR, BORDER_CLR,
-    PASS_GREEN, FAIL_RED, thai_font,
+    PASS_GREEN, FAIL_RED, thai_font, HEADER_BG, HDR_TEXT,
 )
 from config import TEST_CONFIG
 
 
+def _send_to_printer(path: str):
+    """ส่งไฟล์ PDF ไปยังเครื่องพิมพ์ default"""
+    system = platform.system()
+    if system == "Darwin":
+        result = subprocess.run(["open", "--print", path])
+        if result.returncode != 0:
+            subprocess.run(["open", path], check=True)
+    elif system == "Windows":
+        os.startfile(path, "print")
+    else:
+        subprocess.run(["lp", path], check=True)
+
+
 # สีสำหรับผลเปรียบเทียบ
-CLR_SAME     = "#333333"   # เท่าเดิม
-CLR_DEGRADED = "#cc0000"   # ลดลง
-CLR_DRIFT    = "#b36b00"   # คลาดเคลื่อน
-CLR_NO_ANS   = "#888888"   # ไม่มีข้อมูล
+CLR_SAME     = "#16a34a"   # เท่าเดิม  – green
+CLR_DEGRADED = "#dc2626"   # ลดลง     – red
+CLR_DRIFT    = "#d97706"   # คลาดเคลื่อน – amber
+CLR_NO_ANS   = "#94a3b8"   # ไม่มีข้อมูล – slate
+
+ALT_ROW      = "#f5f5f5"   # สีแถวสลับ (ขาวอมเทาอ่อน)
 
 _HEADS   = ["หัวข้อประเมิน", "Baseline", "Now",
             "ผลการเปรียบเทียบ", "คำอธิบายเพิ่มเติมจากการเปรียบเทียบ"]
@@ -32,18 +51,18 @@ class ComparisonScreen(BaseScreen):
     def __init__(self, parent, app):
         super().__init__(parent, app)
 
-        self.card_header(self, "เปรียบเทียบกับครั้งก่อนหน้า", bg="#dbdbdb", size=26)
+        self.card_header(self, "เปรียบเทียบกับครั้งก่อนหน้า", bg=HEADER_BG, fg=HDR_TEXT, size=26)
 
         # ── header labels ─────────────────────────────────────────────────
         meta_bar = tk.Frame(self, bg=BG_COLOR)
         meta_bar.pack(fill="x", padx=24, pady=(8, 2))
 
         self.current_lbl = tk.Label(meta_bar, text="", font=thai_font(26),
-                                    bg=BG_COLOR, fg=TEXT_COLOR)
+                                    bg=BG_COLOR, fg="#000000")
         self.current_lbl.pack(side="left")
 
         self.baseline_lbl = tk.Label(meta_bar, text="", font=thai_font(26, "bold"),
-                                     bg=BG_COLOR, fg="#555555")
+                                     bg=BG_COLOR, fg="#000000")
         self.baseline_lbl.pack(side="right")
 
         # ── table container ───────────────────────────────────────────────
@@ -53,9 +72,9 @@ class ComparisonScreen(BaseScreen):
         # column header row (fixed, outside canvas)
         head_bar = tk.Frame(tbl, bg=BG_COLOR)
         head_bar.pack(fill="x")
-        self._build_row(head_bar, _HEADS, BG_COLOR, TEXT_COLOR,
-                        thai_font(26, "bold"), pady=8)
-        tk.Frame(tbl, bg=BORDER_CLR, height=1).pack(fill="x")
+        self._build_row(head_bar, _HEADS, "#ffffff", TEXT_COLOR,
+                        thai_font(26, "bold"), pady=10)
+        tk.Frame(tbl, bg=BORDER_CLR, height=2).pack(fill="x")
 
         # scrollable body
         body_outer = tk.Frame(tbl, bg=BG_COLOR)
@@ -88,8 +107,10 @@ class ComparisonScreen(BaseScreen):
         btn_bar.pack(side="bottom", fill="x", padx=20, pady=12)
         self.primary_btn(btn_bar, "ดาวน์โหลด PDF",
                          self._export_pdf, fontsize=26, width=16).pack(side="left", padx=4)
-        self.primary_btn(btn_bar, "กลับ", self._back,
-                         fontsize=26, width=12).pack(side="right", padx=4)
+        self.primary_btn(btn_bar, "พิมพ์",
+                         self._print_pdf, fontsize=26, width=10).pack(side="left", padx=4)
+        self.back_btn(btn_bar, "กลับ", self._back,
+                      fontsize=26, width=12).pack(side="right", padx=4)
 
     # ── table helpers ─────────────────────────────────────────────────────
 
@@ -128,6 +149,7 @@ class ComparisonScreen(BaseScreen):
             w.destroy()
         self._desc_labels.clear()
         self._rows_data.clear()
+        self._canvas.yview_moveto(0)
 
     # ── on_show ───────────────────────────────────────────────────────────
 
@@ -147,7 +169,7 @@ class ComparisonScreen(BaseScreen):
             return _db.get_eval_rank(ev.get("screen_type", ""), ev.get("period", ""), eid)
 
         self.current_lbl.configure(
-            text=f"ครั้งนี้ (ครั้งที่ {_rank(current)}): {current.get('hospital_name','')}  {current.get('evaluator_name','')}  {current.get('eval_datetime','')}"
+            text=f"ครั้งที่ {_rank(current)} : {current.get('hospital_name','')}  {current.get('evaluator_name','')}  {current.get('eval_datetime','')}"
         )
         self.baseline_lbl.configure(
             text=f"Baseline (ครั้งที่ {_rank(baseline)}): {baseline.get('hospital_name','')}  {baseline.get('evaluator_name','')}  {baseline.get('eval_datetime','')}"
@@ -166,7 +188,7 @@ class ComparisonScreen(BaseScreen):
         for group in groups:
             self._build_row(self._body,
                             [group["group_title"], "", "", "", ""],
-                            "#c8c8c8", TEXT_COLOR,
+                            "#BFBFBF", TEXT_COLOR,
                             thai_font(26, "bold"), pady=10)
             self._rows_data.append({"is_group": True, "title": group["group_title"]})
 
@@ -180,7 +202,7 @@ class ComparisonScreen(BaseScreen):
                 result_text, tag, description = _compare_result(item, b_ans, c_ans)
 
                 fg     = _TAG_COLOR.get(tag, TEXT_COLOR)
-                row_bg = CARD_COLOR
+                row_bg = CARD_COLOR if row_idx % 2 == 0 else ALT_ROW
                 row_idx += 1
 
                 desc_lbl = self._build_row(
@@ -201,6 +223,9 @@ class ComparisonScreen(BaseScreen):
                     "tag":         tag,
                 })
 
+        self.update_idletasks()
+        self._canvas.configure(scrollregion=self._canvas.bbox("all"))
+        self._canvas.yview_moveto(0)
         self.after(10, self._refresh_desc_wrap)
 
     # ── helpers ───────────────────────────────────────────────────────────
@@ -214,6 +239,35 @@ class ComparisonScreen(BaseScreen):
             "period":        session.get("period", ""),
             "answers":       session.get("answers", {}),
         }
+
+    @staticmethod
+    def _with_rank(ev: dict) -> dict:
+        """คืน copy ของ ev พร้อม key 'rank' ที่คำนวณจาก database"""
+        import database as _db
+        ev = dict(ev)
+        eid = ev.get("id")
+        if eid:
+            ev["rank"] = _db.get_eval_rank(ev.get("screen_type", ""), ev.get("period", ""), eid)
+        return ev
+
+    def _print_pdf(self):
+        from tkinter import messagebox
+        from reports.pdf_export import export_comparison
+        session  = self.app.session
+        baseline = session.get("compare_baseline")
+        current  = session.get("compare_current") or ComparisonScreen._session_as_eval(session)
+        if not baseline or not current or not self._rows_data:
+            return
+        if not messagebox.askyesno("ยืนยันการพิมพ์", "ต้องการพิมพ์ผลการเปรียบเทียบนี้ ใช่หรือไม่?"):
+            return
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+                tmp = f.name
+            export_comparison(self._with_rank(current), self._with_rank(baseline), self._rows_data, tmp)
+            _send_to_printer(tmp)
+            messagebox.showinfo("ส่งพิมพ์สำเร็จ", "ส่งรายการพิมพ์เรียบร้อยแล้ว")
+        except Exception as e:
+            messagebox.showerror("ข้อผิดพลาด", f"ไม่สามารถพิมพ์ได้\n{e}")
 
     def _export_pdf(self):
         from tkinter import filedialog, messagebox
@@ -232,17 +286,17 @@ class ComparisonScreen(BaseScreen):
         if not path:
             return
         try:
-            export_comparison(current, baseline, self._rows_data, path)
+            export_comparison(self._with_rank(current), self._with_rank(baseline), self._rows_data, path)
             messagebox.showinfo("บันทึกสำเร็จ", f"บันทึก PDF เรียบร้อย\n{path}")
         except Exception as e:
             messagebox.showerror("ข้อผิดพลาด", f"ไม่สามารถสร้าง PDF ได้\n{e}")
 
     def _back(self):
         session = self.app.session
-        if session.get("compare_current"):
-            self.app.show("history_result")
-        elif session.get("eval_id"):
+        if session.get("eval_id"):
             self.app.show("after_save")
+        elif session.get("compare_current"):
+            self.app.show("history_result")
         else:
             self.app.show("home")
 

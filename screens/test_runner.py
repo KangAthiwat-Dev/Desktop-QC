@@ -5,8 +5,10 @@ from PIL import Image, ImageTk
 
 from screens.base import (
     BaseScreen, CARD_COLOR, TEXT_COLOR,
-    ENTRY_BG, thai_font,
+    ENTRY_BG, thai_font, FAIL_RED, _round_rect,
 )
+
+BTN_BG = "#333333"
 
 PATTERN_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                            "assets", "test_patterns")
@@ -48,7 +50,7 @@ class TestRunnerScreen(BaseScreen):
         self.playpause_btn.pack(side="left", padx=(0, 8))
 
         self.replay_bar_btn = tk.Button(
-            ctrl_inner, text="↩ เล่นซ้ำ", font=thai_font(16),
+            ctrl_inner, text="เล่นซ้ำ", font=thai_font(16),
             bg="#555555", fg="#000000", relief="raised", bd=2,
             activebackground="#777777", activeforeground="white",
             command=self._replay, width=8,
@@ -72,6 +74,7 @@ class TestRunnerScreen(BaseScreen):
         self.play_lbl = tk.Label(self, text="", font=thai_font(14),
                                  bg="#1a1a1a", fg="#cccccc")
 
+
         # ── Floating window ───────────────────────────────────────────
         self.card_win = tk.Toplevel(app)
         self.card_win.title("คำถามและการประเมิน")
@@ -79,10 +82,28 @@ class TestRunnerScreen(BaseScreen):
         self.card_win.protocol("WM_DELETE_WINDOW", lambda: None)
         self.card_win.resizable(True, True)
         self.card_win.minsize(600, 360)
-        self.card_win.withdraw()   # ซ่อนไว้ก่อน
+        self.card_win.withdraw()
 
+        # ── แถบบนสุด: ชื่อกลุ่ม + badge ข้อ X/Y มุมขวาบน ────────────
+        top_bar = tk.Frame(self.card_win, bg="#FFFFFF", height=46)
+        top_bar.pack(fill="x")
+        top_bar.pack_propagate(False)
 
-        # body
+        _BW, _BH, _BR = 110, 34, 11   # badge width / height / radius
+        self._badge_cvs = tk.Canvas(top_bar, width=_BW, height=_BH,
+                                    bg="#F4F4F4", highlightthickness=0)
+        self._badge_cvs.pack(side="right", padx=10, pady=6)
+
+        def _draw_badge(text: str):
+            self._badge_cvs.delete("all")
+            _round_rect(self._badge_cvs, 1, 1, _BW - 1, _BH - 1, _BR,
+                        fill="#F4F4F4", outline="")
+            self._badge_cvs.create_text(_BW // 2, _BH // 2, text=text,
+                                        font=thai_font(16, "bold"), fill="#000000")
+        self._draw_badge = _draw_badge
+        self._draw_badge("- / -")
+
+        # ── body ───────────────────────────────────────────────────────
         body = tk.Frame(self.card_win, bg=CARD_COLOR)
         body.pack(fill="x", expand=False, padx=12, pady=8)
 
@@ -96,14 +117,14 @@ class TestRunnerScreen(BaseScreen):
 
         self._answer_var = tk.StringVar(value="")
         self._warn_lbl = tk.Label(body, text="*กรุณาตอบคำถาม",
-                                  font=thai_font(16), bg=CARD_COLOR, fg="#cc0000")
+                                  font=thai_font(16), bg=CARD_COLOR, fg=FAIL_RED)
 
         for val, txt in [("pass", "ใช่"), ("fail", "ไม่ใช่")]:
             tk.Radiobutton(
                 q_row, text=txt, variable=self._answer_var,
                 value=val, font=thai_font(26),
                 bg=CARD_COLOR, fg=TEXT_COLOR,
-                activebackground=CARD_COLOR, selectcolor="#3b9be8",
+                activebackground=CARD_COLOR, selectcolor=ENTRY_BG,
                 command=self._on_answer,
             ).pack(side="left", padx=16)
 
@@ -113,26 +134,22 @@ class TestRunnerScreen(BaseScreen):
 
         self.note_row = tk.Frame(body, bg=CARD_COLOR)
         self.note_row.pack(fill="x", pady=(8, 0))
-        tk.Label(self.note_row, text="หมายเหตุ:", font=thai_font(20),
-                 bg=CARD_COLOR, fg=TEXT_COLOR).pack(side="left")
+        tk.Label(self.note_row, text="หมายเหตุ (ถ้ามี):", font=thai_font(20),
+                 bg="#F4F4F4", fg=TEXT_COLOR).pack(side="left")
         self.notes_var = tk.StringVar()
         tk.Entry(self.note_row, textvariable=self.notes_var,
-                 font=thai_font(20), bg=ENTRY_BG, fg=TEXT_COLOR,
-                 relief="sunken", bd=2, width=18).pack(side="left", padx=6)
+                 font=thai_font(20), bg="#F4F4F4", fg=TEXT_COLOR,
+                 relief="flat", bd=0, width=18).pack(side="left", padx=6)
 
-        # ปุ่มล่าง
+        # ── ปุ่มล่าง ──────────────────────────────────────────────────
         btn_bar = tk.Frame(self.card_win, bg=CARD_COLOR)
         btn_bar.pack(fill="x", padx=12, pady=8)
 
-        self.progress_lbl = tk.Label(btn_bar, text="", font=thai_font(14),
-                                     bg=CARD_COLOR, fg="#555555")
-        self.progress_lbl.pack(anchor="w", pady=(0, 4))
-
         nav = tk.Frame(btn_bar, bg=CARD_COLOR)
         nav.pack(fill="x")
-        self.next_btn   = self.primary_btn(nav, "ถัดไป",    self._next,   fontsize=26, width=10)
-        self.prev_btn   = self.primary_btn(nav, "ก่อนหน้า", self._prev,   fontsize=26, width=10)
-        self.replay_btn = self.primary_btn(nav, "เล่นซ้ำ",  self._replay, fontsize=26, width=10)
+        self.next_btn   = self.dark_btn(nav, "ถัดไป",    self._next,   fontsize=26, width=10)
+        self.prev_btn   = self.grey_btn(nav, "ก่อนหน้า", self._prev,   fontsize=26, width=10)
+        self.replay_btn = self.grey_btn(nav, "เล่นซ้ำ",  self._replay, fontsize=26, width=10)
         self.next_btn.pack(side="right", padx=2)
         self.prev_btn.pack(side="right", padx=2)
         self.replay_btn.pack(side="left", padx=2)
@@ -167,7 +184,7 @@ class TestRunnerScreen(BaseScreen):
         display   = f"{title}: {criterion}" if criterion else title
         self.item_lbl.configure(text=display)
         self.card_win.title(item.get("group_title", ""))
-        self.progress_lbl.configure(text=f"ข้อ {idx+1} / {total}")
+        self._draw_badge(f"ข้อ {idx+1}/{total}")
 
         saved = session.get("answers", {}).get(item["item_id"], {})
 
@@ -239,7 +256,7 @@ class TestRunnerScreen(BaseScreen):
             on_prev()
 
         self.primary_btn(btn_bar, "ถัดไป",    go_next, fontsize=18, width=10).pack(side="right", padx=4)
-        self.primary_btn(btn_bar, "ก่อนหน้า", go_prev, fontsize=18, width=10).pack(side="right", padx=4)
+        self.back_btn(btn_bar, "ก่อนหน้า", go_prev, fontsize=18, width=10).pack(side="right", padx=4)
 
     def _resolve_image(self, item: dict) -> str:
         session     = self.app.session
@@ -409,7 +426,7 @@ class TestRunnerScreen(BaseScreen):
         self._warn_lbl.pack_forget()
         if self._has_channels:
             self._show_channels(self._answer_var.get() == "fail")
-        self.card_win.update_idletasks()
+        self.card_win.update()
 
     def _save_current(self):
         session = self.app.session

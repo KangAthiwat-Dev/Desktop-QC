@@ -11,7 +11,7 @@ class ResultsScreen(BaseScreen):
         super().__init__(parent, app)
 
         # ── header ────────────────────────────────────────────────────
-        self.card_header(self, "ผลการประเมินคุณภาพหน้าจอ", bg="#dbdbdb", size=26)
+        self.card_header(self, "ผลการประเมินคุณภาพหน้าจอ", size=26)
 
         # ── info bar ──────────────────────────────────────────────────
         info_bar = tk.Frame(self, bg=BG_COLOR, bd=1, relief="solid")
@@ -72,7 +72,7 @@ class ResultsScreen(BaseScreen):
         self.primary_btn(btn_bar, "ไม่บันทึกผล",
                          self._discard, fontsize=26, width=14).pack(side="right", padx=4)
 
-        self.primary_btn(btn_bar, "← ทดสอบใหม่",
+        self.primary_btn(btn_bar, "ทดสอบใหม่",
                          self._retest, fontsize=26, width=14).pack(side="left", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────
@@ -107,12 +107,17 @@ class ResultsScreen(BaseScreen):
 
             ans = answers.get(item["item_id"])
             if ans:
-                result_text = "ผ่าน ✓" if ans["passed"] else "ไม่ผ่าน ✗"
+                result_text = "ผ่าน" if ans["passed"] else "ไม่ผ่าน"
                 tag = "pass" if ans["passed"] else "fail"
                 notes = ans.get("notes", "")
                 if ans.get("failed_channels"):
-                    ch_str = ", ".join(str(c) for c in ans["failed_channels"])
-                    notes = f"ช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
+                    fc = ans["failed_channels"]
+                    if item.get("question_type") == "yes_no_channels_text":
+                        ch_str = ", ".join(str(c) for c in fc)
+                        notes = f"จำนวนภาพที่ Pixel ไม่สม่ำเสมอ: {len(fc)} ช่อง  \nค่า Pixel ของช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
+                    else:
+                        ch_str = ", ".join(str(c) for c in fc)
+                        notes = f"ค่า Pixel ของช่องที่ไม่เห็น: {ch_str}" + (f"  {notes}" if notes else "")
                 if not ans["passed"]:
                     overall_pass = False
             else:
