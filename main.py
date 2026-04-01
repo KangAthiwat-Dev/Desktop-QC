@@ -1,5 +1,25 @@
 import tkinter as tk
 import os, shutil, platform
+
+
+def _fix_windows_dpi():
+    """แก้ DPI scaling บน Windows ไม่ให้ขยาย UI อัตโนมัติ"""
+    if platform.system() != "Windows":
+        return
+    try:
+        import ctypes
+        # Windows 8.1+: per-monitor DPI aware
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except Exception:
+        try:
+            # Windows Vista+: system DPI aware (fallback)
+            ctypes.windll.user32.SetProcessDPIAware()
+        except Exception:
+            pass
+
+
+_fix_windows_dpi()
+
 from screens.base import BG_COLOR
 
 
