@@ -147,7 +147,8 @@ class TestRunnerScreen(BaseScreen):
 
         nav = tk.Frame(btn_bar, bg=CARD_COLOR)
         nav.pack(fill="x")
-        self.next_btn   = self.primary_btn(nav, "ถัดไป",    self._next,   fontsize=self.fs(26), width=10)
+        self.next_btn   = self.primary_btn(nav, "ถัดไป",    self._next,   fontsize=self.fs(26), width=10,
+                                           btn_bg="#AFAFAF", btn_active="#999999", btn_fg="#474747")
         self.prev_btn   = self.grey_btn(nav, "ก่อนหน้า", self._prev,   fontsize=self.fs(26), width=10)
         self.replay_btn = self.grey_btn(nav, "เล่นซ้ำ",  self._replay, fontsize=self.fs(26), width=10)
         self.next_btn.pack(side="right", padx=2)
