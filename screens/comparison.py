@@ -53,7 +53,7 @@ class ComparisonScreen(BaseScreen):
 
     def __init__(self, parent, app):
         super().__init__(parent, app)
-        self._widths = [int(w * self._s) for w in self._widths_REF]
+        self._widths = [int(w * self._s) for w in _WIDTHS_REF]
 
         self.card_header(self, "เปรียบเทียบกับครั้งก่อนหน้า", bg=HEADER_BG, fg=HDR_TEXT, size=self.fs(26))
 
