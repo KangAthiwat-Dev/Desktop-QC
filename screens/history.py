@@ -7,7 +7,7 @@ from tkinter import ttk
 from screens.base import (
     BaseScreen, BG_COLOR, CARD_COLOR, TEXT_COLOR, BORDER_CLR, thai_font,
 )
-from config import SCREEN_TYPES, PERIODS, PERIOD_LABELS
+from config import PERIODS, PERIOD_LABELS
 import database
 
 
@@ -45,14 +45,20 @@ class HistoryScreen(BaseScreen):
                                   bg="#ffffff", relief="sunken", bd=2)
         hospital_entry.pack(side="left", padx=(4, 16))
 
-        tk.Label(search_bar, text="ชนิดหน้าจอ:", font=thai_font(self.fs(26)),
+        tk.Label(search_bar, text="วันที่:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
-        self.type_var = tk.StringVar(value="")
-        type_choices = [("ทั้งหมด", "")] + [(v.split("(")[0].strip(), k)
-                                              for k, v in SCREEN_TYPES.items()]
-        self._type_menu = self._build_optionmenu(search_bar, self.type_var,
-                                                  type_choices)
-        self._type_menu.pack(side="left", padx=(4, 16))
+        self.date_from_var = tk.StringVar()
+        tk.Entry(search_bar, textvariable=self.date_from_var,
+                 font=thai_font(self.fs(26)), width=11,
+                 bg="#ffffff", relief="sunken", bd=2).pack(side="left", padx=(4, 2))
+        tk.Label(search_bar, text="ถึง", font=thai_font(self.fs(26)),
+                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(2, 2))
+        self.date_to_var = tk.StringVar()
+        tk.Entry(search_bar, textvariable=self.date_to_var,
+                 font=thai_font(self.fs(26)), width=11,
+                 bg="#ffffff", relief="sunken", bd=2).pack(side="left", padx=(2, 4))
+        tk.Label(search_bar, text="(ว/ด/ป)", font=thai_font(self.fs(20)),
+                 bg=BG_COLOR, fg="#888888").pack(side="left", padx=(0, 12))
 
         tk.Label(search_bar, text="รอบ:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
@@ -159,11 +165,27 @@ class HistoryScreen(BaseScreen):
     def on_show(self, **_):
         self._search()
 
+    @staticmethod
+    def _parse_date(text: str) -> str:
+        """แปลง DD/MM/YYYY หรือ D/M/YYYY → YYYYMMDD สำหรับ SQLite; คืน "" ถ้าไม่ถูกต้อง"""
+        text = text.strip()
+        if not text:
+            return ""
+        try:
+            parts = text.split("/")
+            if len(parts) != 3:
+                return ""
+            d, m, y = parts
+            return f"{int(y):04d}{int(m):02d}{int(d):02d}"
+        except Exception:
+            return ""
+
     def _search(self):
         rows = database.search_evaluations(
             evaluator=self.hospital_var.get().strip(),
-            screen_type=self.type_var.get(),
             period=self.period_var.get(),
+            date_from=self._parse_date(self.date_from_var.get()),
+            date_to=self._parse_date(self.date_to_var.get()),
         )
         self._rows = rows
         self.tree.delete(*self.tree.get_children())

@@ -310,6 +310,15 @@ def search_evaluations(
     if period:
         sql  += " AND period=?"
         args.append(period)
+    # date_from / date_to ใส่เป็น "YYYYMMDD"
+    # eval_datetime เก็บในรูป "DD/MM/YYYY HH:MM"
+    _date_key = "(substr(eval_datetime,7,4)||substr(eval_datetime,4,2)||substr(eval_datetime,1,2))"
+    if date_from:
+        sql  += f" AND {_date_key} >= ?"
+        args.append(date_from)
+    if date_to:
+        sql  += f" AND {_date_key} <= ?"
+        args.append(date_to)
     sql += " ORDER BY id DESC LIMIT ?"
     args.append(limit)
 
