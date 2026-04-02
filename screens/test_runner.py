@@ -42,7 +42,7 @@ class TestRunnerScreen(BaseScreen):
         ctrl_inner.pack(fill="x", padx=10, pady=4)
 
         self.playpause_btn = tk.Button(
-            ctrl_inner, text="⏸ หยุด", font=thai_font(16),
+            ctrl_inner, text="⏸ หยุด", font=thai_font(self.fs(16)),
             bg="#555555", fg="#000000", relief="raised", bd=2,
             activebackground="#777777", activeforeground="white",
             command=self._toggle_play, width=8,
@@ -50,7 +50,7 @@ class TestRunnerScreen(BaseScreen):
         self.playpause_btn.pack(side="left", padx=(0, 8))
 
         self.replay_bar_btn = tk.Button(
-            ctrl_inner, text="เล่นซ้ำ", font=thai_font(16),
+            ctrl_inner, text="เล่นซ้ำ", font=thai_font(self.fs(16)),
             bg="#555555", fg="#000000", relief="raised", bd=2,
             activebackground="#777777", activeforeground="white",
             command=self._replay, width=8,
@@ -58,7 +58,7 @@ class TestRunnerScreen(BaseScreen):
         self.replay_bar_btn.pack(side="left", padx=(0, 12))
 
         self.frame_counter = tk.Label(ctrl_inner, text="0 / 0",
-                                      font=thai_font(14), bg="#111111", fg="#ffffff")
+                                      font=thai_font(self.fs(14)), bg="#111111", fg="#ffffff")
         self.frame_counter.pack(side="right", padx=(8, 0))
 
         self.slider = tk.Scale(
@@ -71,7 +71,7 @@ class TestRunnerScreen(BaseScreen):
         self.slider.pack(side="left", fill="x", expand=True)
 
         # ── overlay label ตอนเล่น frame ──────────────────────────────
-        self.play_lbl = tk.Label(self, text="", font=thai_font(14),
+        self.play_lbl = tk.Label(self, text="", font=thai_font(self.fs(14)),
                                  bg="#1a1a1a", fg="#cccccc")
 
 
@@ -81,15 +81,15 @@ class TestRunnerScreen(BaseScreen):
         self.card_win.configure(bg=CARD_COLOR)
         self.card_win.protocol("WM_DELETE_WINDOW", lambda: None)
         self.card_win.resizable(True, True)
-        self.card_win.minsize(600, 360)
+        self.card_win.minsize(int(600 * self._s), int(360 * self._s))
         self.card_win.withdraw()
 
         # ── แถบบนสุด: ชื่อกลุ่ม + badge ข้อ X/Y มุมขวาบน ────────────
-        top_bar = tk.Frame(self.card_win, bg="#FFFFFF", height=46)
+        top_bar = tk.Frame(self.card_win, bg="#FFFFFF", height=int(46 * self._s))
         top_bar.pack(fill="x")
         top_bar.pack_propagate(False)
 
-        _BW, _BH, _BR = 110, 34, 11   # badge width / height / radius
+        _BW, _BH, _BR = int(110 * self._s), int(34 * self._s), int(11 * self._s)
         self._badge_cvs = tk.Canvas(top_bar, width=_BW, height=_BH,
                                     bg="#F4F4F4", highlightthickness=0)
         self._badge_cvs.pack(side="right", padx=10, pady=6)
@@ -99,7 +99,7 @@ class TestRunnerScreen(BaseScreen):
             _round_rect(self._badge_cvs, 1, 1, _BW - 1, _BH - 1, _BR,
                         fill="#F4F4F4", outline="")
             self._badge_cvs.create_text(_BW // 2, _BH // 2, text=text,
-                                        font=thai_font(16, "bold"), fill="#000000")
+                                        font=thai_font(self.fs(16), "bold"), fill="#000000")
         self._draw_badge = _draw_badge
         self._draw_badge("- / -")
 
@@ -107,9 +107,9 @@ class TestRunnerScreen(BaseScreen):
         body = tk.Frame(self.card_win, bg=CARD_COLOR)
         body.pack(fill="x", expand=False, padx=12, pady=8)
 
-        self.item_lbl = tk.Label(body, text="", font=thai_font(26, "bold"),
+        self.item_lbl = tk.Label(body, text="", font=thai_font(self.fs(26), "bold"),
                                  bg=CARD_COLOR, fg=TEXT_COLOR,
-                                 wraplength=520, justify="left", anchor="w")
+                                 wraplength=int(520 * self._s), justify="left", anchor="w")
         self.item_lbl.pack(anchor="w", pady=(0, 8))
 
         q_row = tk.Frame(body, bg=CARD_COLOR)
@@ -117,12 +117,12 @@ class TestRunnerScreen(BaseScreen):
 
         self._answer_var = tk.StringVar(value="")
         self._warn_lbl = tk.Label(body, text="*กรุณาตอบคำถาม",
-                                  font=thai_font(16), bg=CARD_COLOR, fg=FAIL_RED)
+                                  font=thai_font(self.fs(16)), bg=CARD_COLOR, fg=FAIL_RED)
 
         for val, txt in [("pass", "ใช่"), ("fail", "ไม่ใช่")]:
             tk.Radiobutton(
                 q_row, text=txt, variable=self._answer_var,
-                value=val, font=thai_font(26),
+                value=val, font=thai_font(self.fs(26)),
                 bg=CARD_COLOR, fg=TEXT_COLOR,
                 activebackground=CARD_COLOR, selectcolor=ENTRY_BG,
                 command=self._on_answer,
@@ -134,11 +134,11 @@ class TestRunnerScreen(BaseScreen):
 
         self.note_row = tk.Frame(body, bg=CARD_COLOR)
         self.note_row.pack(fill="x", pady=(8, 0))
-        tk.Label(self.note_row, text="หมายเหตุ (ถ้ามี):", font=thai_font(20),
+        tk.Label(self.note_row, text="หมายเหตุ (ถ้ามี):", font=thai_font(self.fs(20)),
                  bg="#F4F4F4", fg=TEXT_COLOR).pack(side="left")
         self.notes_var = tk.StringVar()
         tk.Entry(self.note_row, textvariable=self.notes_var,
-                 font=thai_font(20), bg="#F4F4F4", fg=TEXT_COLOR,
+                 font=thai_font(self.fs(20)), bg="#F4F4F4", fg=TEXT_COLOR,
                  relief="flat", bd=0, width=18).pack(side="left", padx=6)
 
         # ── ปุ่มล่าง ──────────────────────────────────────────────────
@@ -147,9 +147,9 @@ class TestRunnerScreen(BaseScreen):
 
         nav = tk.Frame(btn_bar, bg=CARD_COLOR)
         nav.pack(fill="x")
-        self.next_btn   = self.dark_btn(nav, "ถัดไป",    self._next,   fontsize=26, width=10)
-        self.prev_btn   = self.grey_btn(nav, "ก่อนหน้า", self._prev,   fontsize=26, width=10)
-        self.replay_btn = self.grey_btn(nav, "เล่นซ้ำ",  self._replay, fontsize=26, width=10)
+        self.next_btn   = self.dark_btn(nav, "ถัดไป",    self._next,   fontsize=self.fs(26), width=10)
+        self.prev_btn   = self.grey_btn(nav, "ก่อนหน้า", self._prev,   fontsize=self.fs(26), width=10)
+        self.replay_btn = self.grey_btn(nav, "เล่นซ้ำ",  self._replay, fontsize=self.fs(26), width=10)
         self.next_btn.pack(side="right", padx=2)
         self.prev_btn.pack(side="right", padx=2)
         self.replay_btn.pack(side="left", padx=2)
@@ -220,7 +220,7 @@ class TestRunnerScreen(BaseScreen):
         dlg.transient(self.app)
         dlg.protocol("WM_DELETE_WINDOW", lambda: None)
 
-        w, h = 700, 520
+        w, h = int(700 * self._s), int(520 * self._s)
         px = self.app.winfo_x() + self.app.winfo_width()  // 2 - w // 2
         py = self.app.winfo_y() + self.app.winfo_height() // 2 - h // 2
         dlg.geometry(f"{w}x{h}+{px}+{py}")
@@ -230,8 +230,8 @@ class TestRunnerScreen(BaseScreen):
 
         tk.Label(dlg,
                  text="การประเมินด้านความสม่ำเสมอของค่า pixel (uniformity)",
-                 font=thai_font(24, "bold"), bg=CARD_COLOR, fg=TEXT_COLOR,
-                 wraplength=660, justify="left",
+                 font=thai_font(self.fs(24), "bold"), bg=CARD_COLOR, fg=TEXT_COLOR,
+                 wraplength=int(660 * self._s), justify="left",
                  ).pack(anchor="w", padx=24, pady=(24, 10))
 
         body = (
@@ -240,8 +240,8 @@ class TestRunnerScreen(BaseScreen):
             "โปรดมองอย่างละเอียดแล้วทำการเลื่อนเมาส์ดูภาพตั้งแต่ภาพที่แสดงค่า pixel ตั้งแต่ 0 "
             "ถึงภาพที่แสดงค่า pixel เท่ากับ 255"
         )
-        tk.Label(dlg, text=body, font=thai_font(24), bg=CARD_COLOR, fg=TEXT_COLOR,
-                 wraplength=660, justify="left",
+        tk.Label(dlg, text=body, font=thai_font(self.fs(24)), bg=CARD_COLOR, fg=TEXT_COLOR,
+                 wraplength=int(660 * self._s), justify="left",
                  ).pack(anchor="w", padx=24, pady=(0, 20))
 
         btn_bar = tk.Frame(dlg, bg=CARD_COLOR)
@@ -255,8 +255,8 @@ class TestRunnerScreen(BaseScreen):
             dlg.destroy()
             on_prev()
 
-        self.primary_btn(btn_bar, "ถัดไป",    go_next, fontsize=18, width=10).pack(side="right", padx=4)
-        self.back_btn(btn_bar, "ก่อนหน้า", go_prev, fontsize=18, width=10).pack(side="right", padx=4)
+        self.primary_btn(btn_bar, "ถัดไป",    go_next, fontsize=self.fs(18), width=10).pack(side="right", padx=4)
+        self.back_btn(btn_bar, "ก่อนหน้า", go_prev, fontsize=self.fs(18), width=10).pack(side="right", padx=4)
 
     def _resolve_image(self, item: dict) -> str:
         session     = self.app.session
@@ -295,7 +295,7 @@ class TestRunnerScreen(BaseScreen):
                 self.frame_counter.configure(text=f"1 / {len(files)}")
                 self.playpause_btn.configure(text="⏸ หยุด")
                 self.ctrl_bar.place(relx=0, rely=1.0, relwidth=1,
-                                    height=52, anchor="sw")
+                                    height=int(52 * self._s), anchor="sw")
                 self.play_lbl.place(relx=0.5, rely=0.92, anchor="s")
                 self.replay_btn.pack(side="left", padx=2)
                 self._show_card_win()
@@ -340,7 +340,7 @@ class TestRunnerScreen(BaseScreen):
         if not os.path.exists(path):
             self.img_canvas.create_text(
                 400, 300, text=f"ไม่พบ:\n{path}",
-                fill="white", font=thai_font(14), justify="center",
+                fill="white", font=thai_font(self.fs(14)), justify="center",
             )
             return
         cw = self.img_canvas.winfo_width()  or self.app.winfo_width()  or 1280
@@ -372,10 +372,10 @@ class TestRunnerScreen(BaseScreen):
 
             tk.Label(self.channels_outer,
                      text="ระบุค่าที่ไม่ผ่าน (0–255 คั่นด้วยช่องว่าง):",
-                     font=thai_font(18), bg=CARD_COLOR, fg=TEXT_COLOR
+                     font=thai_font(self.fs(18)), bg=CARD_COLOR, fg=TEXT_COLOR
                      ).grid(row=0, column=0, sticky="w", pady=(4, 2))
             tk.Entry(self.channels_outer, textvariable=self._text_ch_var,
-                     font=thai_font(18), bg=ENTRY_BG, fg=TEXT_COLOR,
+                     font=thai_font(self.fs(18)), bg=ENTRY_BG, fg=TEXT_COLOR,
                      relief="sunken", bd=2, width=30
                      ).grid(row=1, column=0, sticky="w", padx=2, pady=(0, 4))
             self._show_channels(saved.get("result") == "fail")
@@ -393,7 +393,7 @@ class TestRunnerScreen(BaseScreen):
         saved_fail = saved.get("failed_channels", [])
 
         tk.Label(self.channels_outer, text="ระบุช่องที่มองไม่เห็น:",
-                 font=thai_font(18), bg=CARD_COLOR, fg=TEXT_COLOR
+                 font=thai_font(self.fs(18)), bg=CARD_COLOR, fg=TEXT_COLOR
                  ).grid(row=0, column=0, columnspan=9, sticky="w", pady=(4, 2))
 
         cols = 9
@@ -401,7 +401,7 @@ class TestRunnerScreen(BaseScreen):
             var = tk.BooleanVar(value=(i + 1) in saved_fail)
             tk.Checkbutton(
                 self.channels_outer, text=str(i + 1),
-                variable=var, font=thai_font(16),
+                variable=var, font=thai_font(self.fs(16)),
                 bg=CARD_COLOR, fg=TEXT_COLOR,
                 activebackground=CARD_COLOR, selectcolor=ENTRY_BG,
             ).grid(row=1 + i // cols, column=i % cols, sticky="w", padx=2)

@@ -2,17 +2,11 @@ import os
 import tkinter as tk
 from PIL import Image, ImageTk
 from screens.base import (
-    BaseScreen, CARD_COLOR, CARD_W, CARD_HL,
+    BaseScreen, CARD_COLOR,
     TEXT_COLOR, thai_font,
 )
 
 _LOGO_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "logo")
-
-# ขนาดโลโก้แต่ละตัว (height px) — ซ้าย=NU, ขวา=คณะ
-_LOGO_SIZES = {
-    "NULOGO-Download.png":       90,
-    "logo-คณะ-สี-ภาษาไทย.png": 130,
-}
 
 
 def _load_logo(path: str, height: int) -> ImageTk.PhotoImage | None:
@@ -31,17 +25,22 @@ class HomeScreen(BaseScreen):
     def __init__(self, parent, app):
         super().__init__(parent, app)
 
-        card = self.card(self)
-        card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_HL)
+        _logo_sizes = {
+            "NULOGO-Download.png":       int(90 * self._s),
+            "logo-คณะ-สี-ภาษาไทย.png": int(130 * self._s),
+        }
 
-        self.card_header(card, "โปรแกรมตรวจคุณภาพหน้าจอ", size=24)
+        card = self.card(self)
+        card.place(relx=0.5, rely=0.5, anchor="center", width=self.CARD_W, height=self.CARD_HL)
+
+        self.card_header(card, "โปรแกรมตรวจคุณภาพหน้าจอ", size=self.fs(24))
 
         # ── bottom bar: ทีมผู้พัฒนา ──────────────────────────────────────
         bottom = tk.Frame(card, bg=CARD_COLOR)
         bottom.pack(side="bottom", fill="x", padx=16, pady=(0, 8))
 
         dev_lbl = tk.Label(bottom, text="ทีมผู้พัฒนา ▸",
-                           font=thai_font(18), bg=CARD_COLOR,
+                           font=thai_font(self.fs(18)), bg=CARD_COLOR,
                            fg="#888888", cursor="hand2")
         dev_lbl.pack(side="right")
         dev_lbl.bind("<ButtonRelease-1>", lambda _: self._show_team())
@@ -57,31 +56,31 @@ class HomeScreen(BaseScreen):
         logo_row.pack(pady=(20, 4))
 
         self._logo_refs: list = []
-        for fname, h in _LOGO_SIZES.items():
+        for fname, h in _logo_sizes.items():
             photo = _load_logo(os.path.join(_LOGO_DIR, fname), h)
             if photo:
                 self._logo_refs.append(photo)
                 tk.Label(logo_row, image=photo, bg=CARD_COLOR).pack(side="left", padx=24)
 
         # title + ปุ่ม
-        self.title_label(body, "TG270 Monitor QC System", size=50).pack(pady=(6, 24))
+        self.title_label(body, "TG270 Monitor QC System", size=self.fs(50)).pack(pady=(6, 24))
 
         self.primary_btn(
             body, "เริ่มการทดสอบ",
             command=lambda: app.show("select_type"),
-            width=20, fontsize=40, pady=10, padx=20,
+            width=20, fontsize=self.fs(40), pady=10, padx=20,
         ).pack()
 
         self.primary_btn(
             body, "ประวัติการทดสอบ",
             command=lambda: app.show("history"),
-            width=20, fontsize=40, pady=10, padx=20,
+            width=20, fontsize=self.fs(40), pady=10, padx=20,
         ).pack(pady=(14, 0))
 
         self.primary_btn(
             body, "ลงทะเบียน",
             command=lambda: app.show("register"),
-            width=20, fontsize=40, pady=10, padx=20,
+            width=20, fontsize=self.fs(40), pady=10, padx=20,
         ).pack(pady=(14, 0))
 
     # ── ทีมผู้พัฒนา popup ───────────────────────────────────────────────
@@ -94,7 +93,7 @@ class HomeScreen(BaseScreen):
         dlg.transient(self.app)
         dlg.grab_set()
 
-        w, h = 520, 380
+        w, h = int(520 * self._s), int(380 * self._s)
         px = self.app.winfo_x() + self.app.winfo_width()  // 2 - w // 2
         py = self.app.winfo_y() + self.app.winfo_height() // 2 - h // 2
         dlg.geometry(f"{w}x{h}+{px}+{py}")
@@ -103,7 +102,7 @@ class HomeScreen(BaseScreen):
         hdr = tk.Frame(dlg, bg="#474747", height=38)
         hdr.pack(fill="x")
         hdr.pack_propagate(False)
-        tk.Label(hdr, text="ทีมผู้พัฒนา", font=thai_font(20, "bold"),
+        tk.Label(hdr, text="ทีมผู้พัฒนา", font=thai_font(self.fs(20), "bold"),
                  bg="#474747", fg="#FFFFFF").pack(side="left", padx=16, pady=10)
 
         # content
@@ -122,15 +121,15 @@ class HomeScreen(BaseScreen):
             row = tk.Frame(content, bg=CARD_COLOR)
             row.pack(fill="x", pady=2)
             if role:
-                tk.Label(row, text=role, font=thai_font(22, "bold"),
+                tk.Label(row, text=role, font=thai_font(self.fs(22), "bold"),
                          bg=CARD_COLOR, fg=TEXT_COLOR,
                          width=16, anchor="w").pack(side="left")
             if name:
-                tk.Label(row, text=name, font=thai_font(20),
+                tk.Label(row, text=name, font=thai_font(self.fs(20)),
                          bg=CARD_COLOR, fg="#555555", anchor="w").pack(side="left")
 
         # close
         btn_bar = tk.Frame(dlg, bg=CARD_COLOR)
         btn_bar.pack(fill="x", padx=24, pady=(0, 16))
         self.primary_btn(btn_bar, "ปิด", dlg.destroy,
-                         fontsize=22, width=10).pack(side="right")
+                         fontsize=self.fs(22), width=10).pack(side="right")

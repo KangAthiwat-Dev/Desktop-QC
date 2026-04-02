@@ -1,5 +1,5 @@
 import tkinter as tk
-from screens.base import BaseScreen, CARD_COLOR, TEXT_COLOR, thai_font, CARD_W, CARD_H
+from screens.base import BaseScreen, CARD_COLOR, TEXT_COLOR, thai_font
 from config import TEST_CONFIG
 
 INSTRUCTION_LINES = [
@@ -15,24 +15,24 @@ class InstructionsScreen(BaseScreen):
         super().__init__(parent, app)
 
         card = self.card(self)
-        card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_H)
+        card.place(relx=0.5, rely=0.5, anchor="center", width=self.CARD_W, height=self.CARD_H)
 
-        self.card_header(card, "คำแนะนำในการทดสอบระบบ", size=24)
+        self.card_header(card, "คำแนะนำในการทดสอบระบบ", size=self.fs(24))
 
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=30, pady=28)
         
-        self.title_label(body, "คำแนะนำก่อนการประเมิน", size=35).pack(pady=(6, 24))
+        self.title_label(body, "คำแนะนำก่อนการประเมิน", size=self.fs(35)).pack(pady=(6, 24))
 
         for line in INSTRUCTION_LINES:
-            tk.Label(body, text=line, font=thai_font(28), bg=CARD_COLOR,
+            tk.Label(body, text=line, font=thai_font(self.fs(28)), bg=CARD_COLOR,
                      fg=TEXT_COLOR, anchor="w", justify="left",
-                     wraplength=620).pack(anchor="w", pady=8)
+                     wraplength=int(620 * self._s)).pack(anchor="w", pady=8)
 
         btn_frame = tk.Frame(card, bg=CARD_COLOR)
         btn_frame.pack(side="bottom", fill="x", padx=16, pady=12)
-        self.primary_btn(btn_frame, "ถัดไป",    self._next,                  fontsize=26, width=12).pack(side="right", padx=4)
-        self.back_btn(btn_frame, "ย้อนกลับ", lambda: app.show("confirm"), fontsize=26, width=12).pack(side="right", padx=4)
+        self.primary_btn(btn_frame, "ถัดไป",    self._next,                  fontsize=self.fs(26), width=12).pack(side="right", padx=4)
+        self.back_btn(btn_frame, "ย้อนกลับ", lambda: app.show("confirm"), fontsize=self.fs(26), width=12).pack(side="right", padx=4)
 
     def on_show(self, **_):
         session = self.app.session

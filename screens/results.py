@@ -11,12 +11,12 @@ class ResultsScreen(BaseScreen):
         super().__init__(parent, app)
 
         # ── header ────────────────────────────────────────────────────
-        self.card_header(self, "ผลการประเมินคุณภาพหน้าจอ", size=26)
+        self.card_header(self, "ผลการประเมินคุณภาพหน้าจอ", size=self.fs(26))
 
         # ── info bar ──────────────────────────────────────────────────
         info_bar = tk.Frame(self, bg=BG_COLOR, bd=1, relief="solid")
         info_bar.pack(fill="x", padx=20, pady=(8, 4))
-        self.info_lbl = tk.Label(info_bar, text="", font=thai_font(26),
+        self.info_lbl = tk.Label(info_bar, text="", font=thai_font(self.fs(26)),
                                   bg=BG_COLOR, fg=TEXT_COLOR)
         self.info_lbl.pack(side="left")
 
@@ -26,13 +26,13 @@ class ResultsScreen(BaseScreen):
 
         style = ttk.Style()
         style.configure("Results.Treeview",
-                         font=thai_font(26),
-                         rowheight=36,
+                         font=thai_font(self.fs(26)),
+                         rowheight=max(22, int(36 * self._s)),
                          background=CARD_COLOR,
                          fieldbackground=CARD_COLOR,
                          foreground=TEXT_COLOR)
         style.configure("Results.Treeview.Heading",
-                         font=thai_font(26, "bold"),
+                         font=thai_font(self.fs(26), "bold"),
                          background=BG_COLOR,
                          foreground=TEXT_COLOR,
                          relief="flat")
@@ -47,14 +47,14 @@ class ResultsScreen(BaseScreen):
         self.tree.heading("ผลการประเมิน",    text="ผลการประเมิน",    anchor="center")
         self.tree.heading("หมายเหตุ",        text="หมายเหตุ",        anchor="w")
 
-        self.tree.column("หัวข้อการประเมิน", width=520, anchor="w",    stretch=True)
-        self.tree.column("ผลการประเมิน",    width=140, anchor="center", stretch=False)
-        self.tree.column("หมายเหตุ",        width=260, anchor="w",    stretch=True)
+        self.tree.column("หัวข้อการประเมิน", width=int(520 * self._s), anchor="w",    stretch=True)
+        self.tree.column("ผลการประเมิน",    width=int(140 * self._s), anchor="center", stretch=False)
+        self.tree.column("หมายเหตุ",        width=int(260 * self._s), anchor="w",    stretch=True)
 
         # tag สี
         self.tree.tag_configure("pass",    foreground=PASS_GREEN)
         self.tree.tag_configure("fail",    foreground=FAIL_RED)
-        self.tree.tag_configure("group",   background="#c8c8c8", font=thai_font(26, "bold"))
+        self.tree.tag_configure("group",   background="#c8c8c8", font=thai_font(self.fs(26), "bold"))
         self.tree.tag_configure("no_ans",  foreground="#888888")
 
         scrollbar = ttk.Scrollbar(table_frame, orient="vertical",
@@ -68,12 +68,12 @@ class ResultsScreen(BaseScreen):
         btn_bar.pack(side="bottom", fill="x", padx=20, pady=12)
 
         self.primary_btn(btn_bar, "บันทึกผล",
-                         self._save, fontsize=26, width=14).pack(side="right", padx=4)
+                         self._save, fontsize=self.fs(26), width=14).pack(side="right", padx=4)
         self.primary_btn(btn_bar, "ไม่บันทึกผล",
-                         self._discard, fontsize=26, width=14).pack(side="right", padx=4)
+                         self._discard, fontsize=self.fs(26), width=14).pack(side="right", padx=4)
 
         self.primary_btn(btn_bar, "ทดสอบใหม่",
-                         self._retest, fontsize=26, width=14).pack(side="left", padx=4)
+                         self._retest, fontsize=self.fs(26), width=14).pack(side="left", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────
 
@@ -155,20 +155,20 @@ class ResultsScreen(BaseScreen):
         dlg.resizable(False, False)
         dlg.transient(self.app)
         dlg.grab_set()
-        w, h = 400, 200
+        w, h = int(400 * self._s), int(200 * self._s)
         px = self.app.winfo_x() + self.app.winfo_width()  // 2 - w // 2
         py = self.app.winfo_y() + self.app.winfo_height() // 2 - h // 2
         dlg.geometry(f"{w}x{h}+{px}+{py}")
 
-        tk.Label(dlg, text="จำนวนชุดที่ต้องการ", font=thai_font(26, "bold"),
+        tk.Label(dlg, text="จำนวนชุดที่ต้องการ", font=thai_font(self.fs(26), "bold"),
                  bg=CARD_COLOR, fg=TEXT_COLOR).pack(pady=(20, 8))
 
         spin_var = tk.IntVar(value=1)
         tk.Spinbox(dlg, from_=1, to=99, textvariable=spin_var,
-                   font=thai_font(26), width=6, justify="center",
+                   font=thai_font(self.fs(26)), width=6, justify="center",
                    bg=ENTRY_BG, fg=TEXT_COLOR, relief="sunken", bd=2).pack()
 
-        err_lbl = tk.Label(dlg, text="", font=thai_font(20), bg=CARD_COLOR, fg="#cc0000")
+        err_lbl = tk.Label(dlg, text="", font=thai_font(self.fs(20)), bg=CARD_COLOR, fg="#cc0000")
         err_lbl.pack(pady=(4, 0))
 
         btn_bar = tk.Frame(dlg, bg=CARD_COLOR)
@@ -215,9 +215,9 @@ class ResultsScreen(BaseScreen):
                 err_lbl.configure(text=f"ไม่สามารถสร้าง PDF ได้: {e}")
 
         self.primary_btn(btn_bar, "บันทึก PDF", save,
-                         fontsize=24, width=14).pack(side="left", padx=(0, 8))
+                         fontsize=self.fs(24), width=14).pack(side="left", padx=(0, 8))
         self.primary_btn(btn_bar, "ยกเลิก", dlg.destroy,
-                         fontsize=24, width=10).pack(side="left")
+                         fontsize=self.fs(24), width=10).pack(side="left")
 
     def _retest(self):
         session = self.app.session

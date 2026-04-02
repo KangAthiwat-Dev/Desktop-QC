@@ -33,12 +33,12 @@ class HistoryResultScreen(BaseScreen):
         super().__init__(parent, app)
 
     
-        self.card_header(self, "ผลการประเมิน (ประวัติ)", size=24)
+        self.card_header(self, "ผลการประเมิน (ประวัติ)", size=self.fs(24))
 
         # ── info bar ──────────────────────────────────────────────────────
         info_bar = tk.Frame(self, bg=BG_COLOR, bd=1, relief="solid")
         info_bar.pack(fill="x", padx=20, pady=(8, 4))
-        self.info_lbl = tk.Label(info_bar, text="", font=thai_font(26),
+        self.info_lbl = tk.Label(info_bar, text="", font=thai_font(self.fs(26)),
                                   bg=BG_COLOR, fg=TEXT_COLOR)
         self.info_lbl.pack(side="left")
 
@@ -48,11 +48,11 @@ class HistoryResultScreen(BaseScreen):
 
         style = ttk.Style()
         style.configure("HistRes.Treeview",
-                         font=thai_font(26), rowheight=36,
+                         font=thai_font(self.fs(26)), rowheight=max(22, int(36 * self._s)),
                          background="#FFFFFF", fieldbackground=CARD_COLOR,
                          foreground=TEXT_COLOR)
         style.configure("HistRes.Treeview.Heading",
-                         font=thai_font(26, "bold"),
+                         font=thai_font(self.fs(26), "bold"),
                          background="#FFFFFF", foreground=TEXT_COLOR, relief="flat")
         style.map("HistRes.Treeview", background=[("selected", "#b0c8e8")])
 
@@ -62,13 +62,13 @@ class HistoryResultScreen(BaseScreen):
         self.tree.heading("หัวข้อการประเมิน", text="หัวข้อการประเมิน", anchor="w")
         self.tree.heading("ผลการประเมิน",    text="ผลการประเมิน",    anchor="center")
         self.tree.heading("หมายเหตุ",        text="หมายเหตุ",        anchor="w")
-        self.tree.column("หัวข้อการประเมิน", width=520, anchor="w",    stretch=True)
-        self.tree.column("ผลการประเมิน",    width=140, anchor="center", stretch=False)
-        self.tree.column("หมายเหตุ",        width=260, anchor="w",    stretch=True)
+        self.tree.column("หัวข้อการประเมิน", width=int(520 * self._s), anchor="w",    stretch=True)
+        self.tree.column("ผลการประเมิน",    width=int(140 * self._s), anchor="center", stretch=False)
+        self.tree.column("หมายเหตุ",        width=int(260 * self._s), anchor="w",    stretch=True)
 
         self.tree.tag_configure("pass",   foreground=PASS_GREEN)
         self.tree.tag_configure("fail",   foreground=FAIL_RED)
-        self.tree.tag_configure("group",  background="#c8c8c8", font=thai_font(26, "bold"))
+        self.tree.tag_configure("group",  background="#c8c8c8", font=thai_font(self.fs(26), "bold"))
         self.tree.tag_configure("no_ans", foreground="#888888")
 
         scrollbar = ttk.Scrollbar(table_frame, orient="vertical",
@@ -82,13 +82,13 @@ class HistoryResultScreen(BaseScreen):
         btn_bar.pack(side="bottom", fill="x", padx=20, pady=12)
 
         self.primary_btn(btn_bar, "เปรียบเทียบครั้งก่อนหน้า",
-                         self._compare, fontsize=26, width=22).pack(side="left", padx=4)
+                         self._compare, fontsize=self.fs(26), width=22).pack(side="left", padx=4)
         self.primary_btn(btn_bar, "ดาวน์โหลด PDF",
-                         self._export_pdf, fontsize=26, width=16).pack(side="left", padx=4)
+                         self._export_pdf, fontsize=self.fs(26), width=16).pack(side="left", padx=4)
         self.primary_btn(btn_bar, "พิมพ์",
-                         self._print_result, fontsize=26, width=10).pack(side="left", padx=4)
+                         self._print_result, fontsize=self.fs(26), width=10).pack(side="left", padx=4)
         self.back_btn(btn_bar, "กลับประวัติ",
-                      lambda: app.show("history"), fontsize=26, width=14).pack(side="right", padx=4)
+                      lambda: app.show("history"), fontsize=self.fs(26), width=14).pack(side="right", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────────
 
@@ -212,13 +212,13 @@ class HistoryResultScreen(BaseScreen):
         dlg.transient(self.app)
         dlg.grab_set()
 
-        w, h = 680, 520
+        w, h = int(680 * self._s), int(520 * self._s)
         px = self.app.winfo_x() + self.app.winfo_width()  // 2 - w // 2
         py = self.app.winfo_y() + self.app.winfo_height() // 2 - h // 2
         dlg.geometry(f"{w}x{h}+{px}+{py}")
 
         tk.Label(dlg, text="เลือกรอบที่ต้องการเทียบ Baseline",
-                 font=thai_font(26, "bold"), bg=CARD_COLOR,
+                 font=thai_font(self.fs(26), "bold"), bg=CARD_COLOR,
                  fg=TEXT_COLOR).pack(anchor="w", padx=20, pady=(16, 6))
         tk.Frame(dlg, bg=BORDER_CLR, height=1).pack(fill="x", padx=20)
 
@@ -226,7 +226,7 @@ class HistoryResultScreen(BaseScreen):
         lb_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
         sb = tk.Scrollbar(lb_frame, orient="vertical")
-        lb = tk.Listbox(lb_frame, font=thai_font(24), yscrollcommand=sb.set,
+        lb = tk.Listbox(lb_frame, font=thai_font(self.fs(24)), yscrollcommand=sb.set,
                         bg=ENTRY_BG, fg=TEXT_COLOR, selectbackground="#3b9be8",
                         selectforeground="white", activestyle="none",
                         height=min(8, len(prev_evals)), relief="flat", bd=0)
@@ -241,7 +241,7 @@ class HistoryResultScreen(BaseScreen):
         lb.selection_set(default_idx)
         lb.see(default_idx)
 
-        err_lbl = tk.Label(dlg, text="", font=thai_font(20),
+        err_lbl = tk.Label(dlg, text="", font=thai_font(self.fs(20)),
                            bg=CARD_COLOR, fg="#cc0000")
         err_lbl.pack(anchor="w", padx=20)
 
@@ -264,6 +264,6 @@ class HistoryResultScreen(BaseScreen):
             self.app.show("comparison")
 
         self.primary_btn(btn_bar, "ยืนยัน", confirm,
-                         fontsize=24, width=12).pack(side="left", padx=(0, 8))
+                         fontsize=self.fs(24), width=12).pack(side="left", padx=(0, 8))
         self.primary_btn(btn_bar, "ยกเลิก", dlg.destroy,
-                         fontsize=24, width=12).pack(side="left")
+                         fontsize=self.fs(24), width=12).pack(side="left")

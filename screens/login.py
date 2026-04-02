@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from datetime import datetime
 from screens.base import (BaseScreen, CARD_COLOR, ENTRY_BG,
-                           TEXT_COLOR, thai_font, CARD_W, CARD_HL)
+                           TEXT_COLOR, thai_font)
 from config import PERIOD_LABELS
 from database import get_settings, get_all_users, verify_login
 
@@ -14,7 +14,7 @@ class LoginScreen(BaseScreen):
         # ── style สำหรับ Combobox ────────────────────────────────────────────
         style = ttk.Style()
         style.theme_use("default")
-        fname, fsize, _ = thai_font(26)
+        fname, fsize, _ = thai_font(self.fs(26))
         style.configure("Login.TCombobox",
                         font=(fname, fsize),
                         fieldbackground=ENTRY_BG,
@@ -28,25 +28,25 @@ class LoginScreen(BaseScreen):
                   foreground=[("readonly", TEXT_COLOR)])
 
         card = self.card(self)
-        card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_HL)
+        card.place(relx=0.5, rely=0.5, anchor="center", width=self.CARD_W, height=self.CARD_HL)
 
-        self.card_header(card, "Log-in", size=24)
+        self.card_header(card, "Log-in", size=self.fs(24))
 
         body = tk.Frame(card, bg=CARD_COLOR)
         body.pack(fill="both", expand=True, padx=36, pady=20)
 
-        self.title_lbl = tk.Label(body, text="", font=thai_font(16, "bold"),
+        self.title_lbl = tk.Label(body, text="", font=thai_font(self.fs(16), "bold"),
                                   bg=CARD_COLOR, fg=TEXT_COLOR)
         self.title_lbl.pack(anchor="w", pady=(0, 4))
 
         tk.Label(body, text="กรุณากรอกรายละเอียดการประเมิน",
-                 font=thai_font(35), bg=CARD_COLOR, fg=TEXT_COLOR).pack(anchor="w", pady=(0, 14))
+                 font=thai_font(self.fs(35)), bg=CARD_COLOR, fg=TEXT_COLOR).pack(anchor="w", pady=(0, 14))
 
         form = tk.Frame(body, bg=CARD_COLOR)
         form.pack(fill="x", pady=4)
 
-        lbl_font = thai_font(26)
-        val_font  = thai_font(26)
+        lbl_font = thai_font(self.fs(26))
+        val_font  = thai_font(self.fs(26))
 
         # ── ชื่อโรงพยาบาล (Label) ────────────────────────────────────────────
         tk.Label(form, text="ชื่อโรงพยาบาล :", font=lbl_font, bg=CARD_COLOR,
@@ -84,19 +84,19 @@ class LoginScreen(BaseScreen):
                                  relief="sunken", bd=2, width=34, show="*")
         self.pw_entry.grid(row=3, column=1, sticky="w", pady=8)
 
-        self.error_lbl = tk.Label(body, text="", font=thai_font(22),
+        self.error_lbl = tk.Label(body, text="", font=thai_font(self.fs(22)),
                                   bg=CARD_COLOR, fg="#cc0000")
         self.error_lbl.pack(anchor="w")
 
-        self.dt_lbl = tk.Label(body, text="", font=thai_font(26),
+        self.dt_lbl = tk.Label(body, text="", font=thai_font(self.fs(26)),
                                bg=CARD_COLOR, fg=TEXT_COLOR)
         self.dt_lbl.pack(anchor="w", pady=(8, 0))
 
         # ปุ่มล่าง
         btn_row = tk.Frame(card, bg=CARD_COLOR)
         btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
-        self.primary_btn(btn_row, "ถัดไป",    self._next, fontsize=26, width=12).pack(side="right", padx=4)
-        self.back_btn(btn_row, "ย้อนกลับ", self._back, fontsize=26, width=12).pack(side="right", padx=4)
+        self.primary_btn(btn_row, "ถัดไป",    self._next, fontsize=self.fs(26), width=12).pack(side="right", padx=4)
+        self.back_btn(btn_row, "ย้อนกลับ", self._back, fontsize=self.fs(26), width=12).pack(side="right", padx=4)
 
     # ── helpers ───────────────────────────────────────────────────────────────
 
@@ -125,7 +125,7 @@ class LoginScreen(BaseScreen):
         type_map = {"diagnostic": "Diagnostic", "modality": "Modality",
                     "clinic": "Clinical Review"}
         self.title_lbl.configure(
-            text=f"{period_lbl} ({type_map.get(screen_type, '')})", font=thai_font(40))
+            text=f"{period_lbl} ({type_map.get(screen_type, '')})", font=thai_font(self.fs(40)))
 
         settings = get_settings()
         self.hospital_lbl.configure(

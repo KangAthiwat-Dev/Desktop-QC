@@ -1,6 +1,6 @@
 import tkinter as tk
 from screens.base import (BaseScreen, CARD_COLOR, BORDER_CLR, ENTRY_BG,
-                           TEXT_COLOR, thai_font, CARD_W, CARD_HL)
+                           TEXT_COLOR, thai_font)
 from database import get_all_users, delete_user, update_user, verify_user_password
 
 
@@ -9,16 +9,16 @@ class UserListScreen(BaseScreen):
         super().__init__(parent, app)
 
         card = self.card(self)
-        card.place(relx=0.5, rely=0.5, anchor="center", width=CARD_W, height=CARD_HL)
+        card.place(relx=0.5, rely=0.5, anchor="center", width=self.CARD_W, height=self.CARD_HL)
 
-        self.card_header(card, "รายชื่อผู้ใช้งาน", size=24)
+        self.card_header(card, "รายชื่อผู้ใช้งาน", size=self.fs(24))
 
         # header row
         hdr = tk.Frame(card, bg="#FFFFFF")
         hdr.pack(fill="x", padx=16, pady=(12, 0))
-        tk.Label(hdr, text="ชื่อ", font=thai_font(24, "bold"), bg="#FFFFFF",
+        tk.Label(hdr, text="ชื่อ", font=thai_font(self.fs(24), "bold"), bg="#FFFFFF",
                  fg=TEXT_COLOR, width=16, anchor="w").pack(side="left", padx=(4, 0))
-        tk.Label(hdr, text="นามสกุล", font=thai_font(24, "bold"), bg="#FFFFFF",
+        tk.Label(hdr, text="นามสกุล", font=thai_font(self.fs(24), "bold"), bg="#FFFFFF",
                  fg=TEXT_COLOR, width=16, anchor="w").pack(side="left", padx=(8, 0))
         tk.Frame(card, bg=BORDER_CLR, height=1).pack(fill="x", padx=16, pady=(4, 0))
 
@@ -43,16 +43,16 @@ class UserListScreen(BaseScreen):
         # ── action panel (ซ่อนไว้ก่อน) ───────────────────────────────────────
         self._panel = tk.Frame(card, bg="#ebebeb",
                                highlightbackground=BORDER_CLR, highlightthickness=1)
-        self._panel_msg  = tk.Label(self._panel, text="", font=thai_font(22),
+        self._panel_msg  = tk.Label(self._panel, text="", font=thai_font(self.fs(22)),
                                     bg="#ebebeb", fg=TEXT_COLOR)
         self._panel_msg.pack(anchor="w", padx=12, pady=(10, 4))
 
         # password row
         pw_row = tk.Frame(self._panel, bg="#ebebeb")
         pw_row.pack(fill="x", padx=12, pady=4)
-        tk.Label(pw_row, text="รหัส :", font=thai_font(22), bg="#ebebeb",
+        tk.Label(pw_row, text="รหัส :", font=thai_font(self.fs(22)), bg="#ebebeb",
                  fg=TEXT_COLOR).pack(side="left")
-        self._pw_entry = tk.Entry(pw_row, font=thai_font(22), bg=ENTRY_BG,
+        self._pw_entry = tk.Entry(pw_row, font=thai_font(self.fs(22)), bg=ENTRY_BG,
                                   fg=TEXT_COLOR, relief="sunken", bd=2, width=20, show="*")
         self._pw_entry.pack(side="left", padx=(8, 0))
 
@@ -63,21 +63,21 @@ class UserListScreen(BaseScreen):
         for lbl_text, key in edit_fields:
             ef_row = tk.Frame(self._edit_frame, bg="#ebebeb")
             ef_row.pack(fill="x", pady=2)
-            tk.Label(ef_row, text=lbl_text, font=thai_font(22), bg="#ebebeb",
+            tk.Label(ef_row, text=lbl_text, font=thai_font(self.fs(22)), bg="#ebebeb",
                      fg=TEXT_COLOR, width=10, anchor="e").pack(side="left")
             show_char = "*" if key == "edit_password" else ""
-            e = tk.Entry(ef_row, font=thai_font(22), bg=ENTRY_BG, fg=TEXT_COLOR,
+            e = tk.Entry(ef_row, font=thai_font(self.fs(22)), bg=ENTRY_BG, fg=TEXT_COLOR,
                          relief="sunken", bd=2, width=22, show=show_char)
             e.pack(side="left", padx=(6, 0))
             self._edit_entries[key] = e
             if key == "edit_password":
                 self._edit_pw_visible = False
-                toggle = tk.Label(ef_row, text="แสดง", font=thai_font(20),
+                toggle = tk.Label(ef_row, text="แสดง", font=thai_font(self.fs(20)),
                                   bg="#ebebeb", fg="#0000cc", cursor="hand2")
                 toggle.pack(side="left", padx=(6, 0))
                 toggle.bind("<ButtonRelease-1>", self._toggle_edit_pw)
                 self._edit_toggle_btn = toggle
-        self._edit_err = tk.Label(self._edit_frame, text="", font=thai_font(20),
+        self._edit_err = tk.Label(self._edit_frame, text="", font=thai_font(self.fs(20)),
                                   bg="#ebebeb", fg="#cc0000")
         self._edit_err.pack(anchor="w", padx=4)
 
@@ -85,11 +85,11 @@ class UserListScreen(BaseScreen):
         panel_btns = tk.Frame(self._panel, bg="#ebebeb")
         panel_btns.pack(fill="x", padx=12, pady=(4, 10))
         self._confirm_btn = self.primary_btn(panel_btns, "ยืนยัน", self._confirm,
-                                             fontsize=20, width=10)
+                                             fontsize=self.fs(20), width=10)
         self._confirm_btn.pack(side="left", padx=(0, 8))
         self.primary_btn(panel_btns, "ยกเลิก", self._close_panel,
-                         fontsize=20, width=10).pack(side="left")
-        self._panel_err = tk.Label(self._panel, text="", font=thai_font(20),
+                         fontsize=self.fs(20), width=10).pack(side="left")
+        self._panel_err = tk.Label(self._panel, text="", font=thai_font(self.fs(20)),
                                    bg="#ebebeb", fg="#cc0000")
         self._panel_err.pack(anchor="w", padx=12, pady=(0, 6))
 
@@ -97,7 +97,7 @@ class UserListScreen(BaseScreen):
         btn_row = tk.Frame(card, bg=CARD_COLOR)
         btn_row.pack(side="bottom", fill="x", padx=16, pady=12)
         self.back_btn(btn_row, "ย้อนกลับ", lambda: app.show("register"),
-                      fontsize=24, width=12).pack(side="left")
+                      fontsize=self.fs(24), width=12).pack(side="left")
 
         # state
         self._pending_user: dict | None = None
@@ -116,23 +116,23 @@ class UserListScreen(BaseScreen):
         users = get_all_users()
         if not users:
             tk.Label(self.list_frame, text="ยังไม่มีผู้ใช้งานที่ลงทะเบียน",
-                     font=thai_font(24), bg=CARD_COLOR, fg="#888888").pack(pady=20)
+                     font=thai_font(self.fs(24)), bg=CARD_COLOR, fg="#888888").pack(pady=20)
         else:
             for u in users:
                 row = tk.Frame(self.list_frame, bg=CARD_COLOR)
                 row.pack(fill="x", pady=2)
 
-                tk.Label(row, text=u["name"], font=thai_font(24), bg=CARD_COLOR,
+                tk.Label(row, text=u["name"], font=thai_font(self.fs(24)), bg=CARD_COLOR,
                          fg=TEXT_COLOR, width=16, anchor="w").pack(side="left", padx=(4, 0))
-                tk.Label(row, text=u.get("lastname", ""), font=thai_font(24), bg=CARD_COLOR,
+                tk.Label(row, text=u.get("lastname", ""), font=thai_font(self.fs(24)), bg=CARD_COLOR,
                          fg=TEXT_COLOR, width=16, anchor="w").pack(side="left", padx=(8, 0))
 
-                edit_lbl = tk.Label(row, text="แก้ไข", font=thai_font(22),
+                edit_lbl = tk.Label(row, text="แก้ไข", font=thai_font(self.fs(22)),
                                     bg=CARD_COLOR, fg="#0055cc", cursor="hand2")
                 edit_lbl.pack(side="right", padx=(4, 8))
                 edit_lbl.bind("<ButtonRelease-1>", lambda _, usr=u: self._open_verify_edit(usr))
 
-                del_lbl = tk.Label(row, text="ลบ", font=thai_font(22),
+                del_lbl = tk.Label(row, text="ลบ", font=thai_font(self.fs(22)),
                                    bg=CARD_COLOR, fg="#cc0000", cursor="hand2")
                 del_lbl.pack(side="right", padx=4)
                 del_lbl.bind("<ButtonRelease-1>", lambda _, usr=u: self._open_delete(usr))

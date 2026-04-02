@@ -15,10 +15,12 @@ FAIL_RED   = "#dc2626"   # red
 ENTRY_BG   = "#FFFFFF"   # white input
 BORDER_CLR = "#474747"   # dark border / separator
 
-# Fixed card sizes (pixels) — ใช้เหมือนกันทุกหน้า
-CARD_W  = 820   # ความกว้าง card มาตรฐาน
-CARD_H  = 540   # ความสูง card มาตรฐาน
-CARD_HL = 680   # ความสูง card แบบสูง (select_type)
+# Reference card sizes at 1920×1080 — actual sizes computed per-screen relative to screen resolution
+_REF_W   = 1920
+_REF_H   = 1080
+CARD_W  = 820   # fallback (overridden by self.CARD_W in each BaseScreen instance)
+CARD_H  = 540
+CARD_HL = 680
 
 
 def thai_font(size: int = 14, weight: str = "normal") -> tuple:
@@ -56,6 +58,17 @@ class BaseScreen(tk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent, bg=BG_COLOR)
         self.app = app
+        sw = app.winfo_screenwidth()
+        sh = app.winfo_screenheight()
+        # Uniform scale preserving aspect ratio, relative to 1920×1080 reference
+        self._s    = min(sw / _REF_W, sh / _REF_H)
+        self.CARD_W  = max(500, int(820 * self._s))
+        self.CARD_H  = max(360, int(540 * self._s))
+        self.CARD_HL = max(460, int(680 * self._s))
+
+    def fs(self, n: int) -> int:
+        """Scale a font size relative to screen resolution."""
+        return max(8, int(n * self._s))
 
     def on_show(self, **kwargs):
         pass
@@ -164,12 +177,12 @@ class BaseScreen(tk.Frame):
         dlg.transient(self.app)
         dlg.grab_set()
 
-        w, h = 420, 180
+        w, h = int(420 * self._s), int(180 * self._s)
         px = self.app.winfo_x() + self.app.winfo_width()  // 2 - w // 2
         py = self.app.winfo_y() + self.app.winfo_height() // 2 - h // 2
         dlg.geometry(f"{w}x{h}+{px}+{py}")
 
-        tk.Label(dlg, text=message, font=thai_font(22),
+        tk.Label(dlg, text=message, font=thai_font(self.fs(22)),
                  bg=CARD_COLOR, fg=TEXT_COLOR,
                  wraplength=380, justify="center").pack(expand=True, pady=(20, 10))
 
@@ -180,8 +193,8 @@ class BaseScreen(tk.Frame):
             result[0] = True
             dlg.destroy()
 
-        self.primary_btn(btn_bar, yes_text, _yes, fontsize=22, width=10).pack(side="left", padx=(0, 8))
-        self.grey_btn(btn_bar, no_text, dlg.destroy, fontsize=22, width=10).pack(side="left")
+        self.primary_btn(btn_bar, yes_text, _yes, fontsize=self.fs(22), width=10).pack(side="left", padx=(0, 8))
+        self.grey_btn(btn_bar, no_text, dlg.destroy, fontsize=self.fs(22), width=10).pack(side="left")
 
         dlg.wait_window()
         return result[0]

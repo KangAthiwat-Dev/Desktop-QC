@@ -31,21 +31,21 @@ class HistoryScreen(BaseScreen):
     def __init__(self, parent, app):
         super().__init__(parent, app)
 
-        self.card_header(self, "ประวัติการทดสอบ", size=24)
+        self.card_header(self, "ประวัติการทดสอบ", size=self.fs(24))
 
         # ── search bar ────────────────────────────────────────────────────
         search_bar = tk.Frame(self, bg=BG_COLOR)
         search_bar.pack(fill="x", padx=20, pady=(8, 4))
 
-        tk.Label(search_bar, text="ชื่อผู้ประเมิน:", font=thai_font(26),
+        tk.Label(search_bar, text="ชื่อผู้ประเมิน:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.hospital_var = tk.StringVar()
         hospital_entry = tk.Entry(search_bar, textvariable=self.hospital_var,
-                                  font=thai_font(26), width=20,
+                                  font=thai_font(self.fs(26)), width=20,
                                   bg="#ffffff", relief="sunken", bd=2)
         hospital_entry.pack(side="left", padx=(4, 16))
 
-        tk.Label(search_bar, text="ชนิดหน้าจอ:", font=thai_font(26),
+        tk.Label(search_bar, text="ชนิดหน้าจอ:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.type_var = tk.StringVar(value="")
         type_choices = [("ทั้งหมด", "")] + [(v.split("(")[0].strip(), k)
@@ -54,7 +54,7 @@ class HistoryScreen(BaseScreen):
                                                   type_choices)
         self._type_menu.pack(side="left", padx=(4, 16))
 
-        tk.Label(search_bar, text="รอบ:", font=thai_font(26),
+        tk.Label(search_bar, text="รอบ:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.period_var = tk.StringVar(value="")
         period_choices = [("ทั้งหมด", "")] + [(v, k) for k, v in PERIOD_LABELS.items()]
@@ -62,7 +62,7 @@ class HistoryScreen(BaseScreen):
                                                     period_choices)
         self._period_menu.pack(side="left", padx=(4, 16))
 
-        search_icon = tk.Label(search_bar, text="🔍", font=thai_font(26),
+        search_icon = tk.Label(search_bar, text="🔍", font=thai_font(self.fs(26)),
                                bg=BG_COLOR, cursor="hand2")
         search_icon.pack(side="left", padx=4)
         search_icon.bind("<ButtonRelease-1>", lambda _: self._search())
@@ -73,13 +73,13 @@ class HistoryScreen(BaseScreen):
 
         style = ttk.Style()
         style.configure("History.Treeview",
-                         font=thai_font(26),
-                         rowheight=36,
+                         font=thai_font(self.fs(26)),
+                         rowheight=max(22, int(36 * self._s)),
                          background=CARD_COLOR,
                          fieldbackground=CARD_COLOR,
                          foreground=TEXT_COLOR)
         style.configure("History.Treeview.Heading",
-                         font=thai_font(26, "bold"),
+                         font=thai_font(self.fs(26), "bold"),
                          background=BG_COLOR,
                          foreground=TEXT_COLOR,
                          relief="flat")
@@ -91,7 +91,7 @@ class HistoryScreen(BaseScreen):
                                   show="headings", style="History.Treeview",
                                   selectmode="extended")
 
-        widths  = [220, 240, 160, 150, 180, 200]
+        widths  = [int(w * self._s) for w in [220, 240, 160, 150, 180, 200]]
         anchors = ["center", "w", "center", "center", "w", "w"]
         for col, w, a in zip(cols, widths, anchors):
             self.tree.heading(col, text=col, anchor=a)
@@ -110,16 +110,16 @@ class HistoryScreen(BaseScreen):
         btn_bar.pack(side="bottom", fill="x", padx=20, pady=12)
 
         self.primary_btn(btn_bar, "ดูรายละเอียด",
-                         self._view_selected, fontsize=26, width=14).pack(side="left", padx=4)
+                         self._view_selected, fontsize=self.fs(26), width=14).pack(side="left", padx=4)
         self.primary_btn(btn_bar, "ดาวน์โหลด PDF",
-                         self._download_selected, fontsize=26, width=16).pack(side="left", padx=4)
+                         self._download_selected, fontsize=self.fs(26), width=16).pack(side="left", padx=4)
         self.primary_btn(btn_bar, "พิมพ์",
-                         self._print_selected, fontsize=26, width=10).pack(side="left", padx=4)
-        self._hint_lbl = tk.Label(btn_bar, text="", font=thai_font(22),
+                         self._print_selected, fontsize=self.fs(26), width=10).pack(side="left", padx=4)
+        self._hint_lbl = tk.Label(btn_bar, text="", font=thai_font(self.fs(22)),
                                   bg=BG_COLOR, fg="#cc0000")
         self._hint_lbl.pack(side="left", padx=8)
         self.back_btn(btn_bar, "กลับหน้าหลัก",
-                      lambda: app.show("home"), fontsize=26, width=14).pack(side="right", padx=4)
+                      lambda: app.show("home"), fontsize=self.fs(26), width=14).pack(side="right", padx=4)
 
         self._rows: list[dict] = []
 
@@ -132,7 +132,7 @@ class HistoryScreen(BaseScreen):
 
         wrapper = tk.Frame(parent, bg=BORDER_CLR)
         display_var = tk.StringVar(value=labels[0])
-        inner = tk.Label(wrapper, textvariable=display_var, font=thai_font(26),
+        inner = tk.Label(wrapper, textvariable=display_var, font=thai_font(self.fs(26)),
                           bg="#ffffff", fg=TEXT_COLOR, padx=6, pady=2, cursor="hand2")
 
         def pick(lbl, val):
@@ -140,7 +140,7 @@ class HistoryScreen(BaseScreen):
             display_var.set(lbl)
             menu.unpost()
 
-        menu = tk.Menu(wrapper, tearoff=0, font=thai_font(26))
+        menu = tk.Menu(wrapper, tearoff=0, font=thai_font(self.fs(26)))
         for lbl, val in zip(labels, values):
             menu.add_command(label=lbl, command=lambda l=lbl, v=val: pick(l, v))
 
