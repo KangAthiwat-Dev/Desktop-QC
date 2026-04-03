@@ -190,54 +190,73 @@ class HistoryScreen(BaseScreen):
         # ── search bar ────────────────────────────────────────────────────
         search_bar = tk.Frame(self, bg=BG_COLOR)
         search_bar.pack(fill="x", padx=20, pady=(8, 4))
-
-        tk.Label(search_bar, text="ชื่อผู้ประเมิน:", font=thai_font(self.fs(26)),
+        
+        search_row1 = tk.Frame(search_bar, bg=BG_COLOR)
+        search_row1.pack(fill="x", pady=4)
+        
+        f1 = tk.Frame(search_row1, bg=BG_COLOR)
+        f1.pack(side="left", fill="x", expand=True, padx=4)
+        tk.Label(f1, text="ชื่อผู้ประเมิน:", font=thai_font(self.fs(26)),
+                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
+        self.evaluator_var = tk.StringVar()
+        tk.Entry(f1, textvariable=self.evaluator_var,
+                 font=thai_font(self.fs(26)), bg="#ffffff", relief="sunken", bd=2).pack(side="left", fill="x", expand=True, padx=(4, 0))
+        
+        f2 = tk.Frame(search_row1, bg=BG_COLOR)
+        f2.pack(side="left", fill="x", expand=True, padx=4)
+        tk.Label(f2, text="โรงพยาบาล:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.hospital_var = tk.StringVar()
-        hospital_entry = tk.Entry(search_bar, textvariable=self.hospital_var,
-                                  font=thai_font(self.fs(26)), width=20,
-                                  bg="#ffffff", relief="sunken", bd=2)
-        hospital_entry.pack(side="left", padx=(4, 16))
+        tk.Entry(f2, textvariable=self.hospital_var,
+                 font=thai_font(self.fs(26)), bg="#ffffff", relief="sunken", bd=2).pack(side="left", fill="x", expand=True, padx=(4, 0))
 
-        tk.Label(search_bar, text="วันที่:", font=thai_font(self.fs(26)),
+        f3 = tk.Frame(search_row1, bg=BG_COLOR)
+        f3.pack(side="left", fill="x", expand=True, padx=4)
+        tk.Label(f3, text="คุรุภัณฑ์:", font=thai_font(self.fs(26)),
+                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
+        self.asset_var = tk.StringVar()
+        tk.Entry(f3, textvariable=self.asset_var,
+                 font=thai_font(self.fs(26)), bg="#ffffff", relief="sunken", bd=2).pack(side="left", fill="x", expand=True, padx=(4, 0))
+        
+        search_row2 = tk.Frame(search_bar, bg=BG_COLOR)
+        search_row2.pack(fill="x", pady=4)
+
+        f4 = tk.Frame(search_row2, bg=BG_COLOR)
+        f4.pack(side="left", fill="x", expand=True, padx=4)
+        tk.Label(f4, text="วันที่:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.date_from_var = tk.StringVar()
-        date_from_entry = tk.Entry(search_bar, textvariable=self.date_from_var,
-                                   font=thai_font(self.fs(26)), width=11,
-                                   bg="#ffffff", relief="sunken", bd=2, state="readonly",
-                                   readonlybackground="#ffffff")
-        date_from_entry.pack(side="left", padx=(4, 1))
-        cal_from = tk.Label(search_bar, text="📅", font=thai_font(self.fs(22)),
-                            bg=BG_COLOR, cursor="hand2")
-        cal_from.pack(side="left", padx=(0, 8))
-        cal_from.bind("<ButtonRelease-1>",
-                      lambda _: _show_calendar(self.app, cal_from, self.date_from_var))
+        tk.Entry(f4, textvariable=self.date_from_var,
+                 font=thai_font(self.fs(26)), width=10, bg="#ffffff", relief="sunken", bd=2, state="readonly",
+                 readonlybackground="#ffffff").pack(side="left", fill="x", expand=True, padx=(4, 2))
+        cal_from = tk.Label(f4, text="📅", font=thai_font(self.fs(22)), bg=BG_COLOR, cursor="hand2")
+        cal_from.pack(side="left", padx=(0, 4))
+        cal_from.bind("<ButtonRelease-1>", lambda _: _show_calendar(self.app, cal_from, self.date_from_var))
 
-        tk.Label(search_bar, text="ถึง", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(0, 2))
+        tk.Label(f4, text="ถึง", font=thai_font(self.fs(26)),
+                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(4, 2))
         self.date_to_var = tk.StringVar()
-        date_to_entry = tk.Entry(search_bar, textvariable=self.date_to_var,
-                                 font=thai_font(self.fs(26)), width=11,
-                                 bg="#ffffff", relief="sunken", bd=2, state="readonly",
-                                 readonlybackground="#ffffff")
-        date_to_entry.pack(side="left", padx=(2, 1))
-        cal_to = tk.Label(search_bar, text="📅", font=thai_font(self.fs(22)),
-                          bg=BG_COLOR, cursor="hand2")
-        cal_to.pack(side="left", padx=(0, 12))
-        cal_to.bind("<ButtonRelease-1>",
-                    lambda _: _show_calendar(self.app, cal_to, self.date_to_var))
+        tk.Entry(f4, textvariable=self.date_to_var,
+                 font=thai_font(self.fs(26)), width=10, bg="#ffffff", relief="sunken", bd=2, state="readonly",
+                 readonlybackground="#ffffff").pack(side="left", fill="x", expand=True, padx=(2, 2))
+        cal_to = tk.Label(f4, text="📅", font=thai_font(self.fs(22)), bg=BG_COLOR, cursor="hand2")
+        cal_to.pack(side="left", padx=(0, 4))
+        cal_to.bind("<ButtonRelease-1>", lambda _: _show_calendar(self.app, cal_to, self.date_to_var))
 
-        tk.Label(search_bar, text="รอบ:", font=thai_font(self.fs(26)),
+        f5 = tk.Frame(search_row2, bg=BG_COLOR)
+        f5.pack(side="left", fill="x", expand=True, padx=4)
+        tk.Label(f5, text="รอบ:", font=thai_font(self.fs(26)),
                  bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
         self.period_var = tk.StringVar(value="")
         period_choices = [("ทั้งหมด", "")] + [(v, k) for k, v in PERIOD_LABELS.items()]
-        self._period_menu = self._build_optionmenu(search_bar, self.period_var,
-                                                    period_choices)
-        self._period_menu.pack(side="left", padx=(4, 16))
+        self._period_menu = self._build_optionmenu(f5, self.period_var, period_choices)
+        self._period_menu.pack(side="left", fill="both", expand=True, padx=(4, 0))
 
-        search_icon = tk.Label(search_bar, text="🔍", font=thai_font(self.fs(26)),
-                               bg=BG_COLOR, cursor="hand2")
-        search_icon.pack(side="left", padx=4)
+        f6 = tk.Frame(search_row2, bg=BG_COLOR)
+        f6.pack(side="right", padx=4)
+        search_icon = tk.Label(f6, text="🔍 ค้นหา", font=thai_font(self.fs(26)),
+                               bg=CARD_COLOR, cursor="hand2", padx=20, pady=2, relief="raised", bd=1)
+        search_icon.pack(side="right")
         search_icon.bind("<ButtonRelease-1>", lambda _: self._search())
 
         # ── table ─────────────────────────────────────────────────────────
@@ -259,13 +278,13 @@ class HistoryScreen(BaseScreen):
         style.map("History.Treeview",
                   background=[("selected", "#b0c8e8")])
 
-        cols = ("วันที่", "โรงพยาบาล", "ชนิด", "รอบ", "ผู้ประเมิน", "รุ่นหน้าจอ")
+        cols = ("ครั้งที่", "วันที่", "โรงพยาบาล", "ชนิดจอ", "รอบ", "ผู้ประเมิน", "คุรุภัณฑ์")
         self.tree = ttk.Treeview(table_frame, columns=cols,
                                   show="headings", style="History.Treeview",
                                   selectmode="extended")
 
-        widths  = [int(w * self._s) for w in [220, 240, 160, 150, 180, 200]]
-        anchors = ["center", "w", "center", "center", "w", "w"]
+        widths  = [int(w * self._s) for w in [80, 180, 220, 140, 130, 180, 200]]
+        anchors = ["center", "center", "w", "center", "center", "w", "w"]
         for col, w, a in zip(cols, widths, anchors):
             self.tree.heading(col, text=col, anchor=a)
             self.tree.column(col, width=w, anchor=a, stretch=True)
@@ -324,7 +343,7 @@ class HistoryScreen(BaseScreen):
                 menu.grab_release()
 
         inner.bind("<ButtonRelease-1>", show_menu)
-        inner.pack(padx=1, pady=1)
+        inner.pack(padx=1, pady=1, fill="both", expand=True)
         return wrapper
 
     # ── on_show ───────────────────────────────────────────────────────────
@@ -349,7 +368,9 @@ class HistoryScreen(BaseScreen):
 
     def _search(self):
         rows = database.search_evaluations(
-            evaluator=self.hospital_var.get().strip(),
+            evaluator=self.evaluator_var.get().strip(),
+            hospital=self.hospital_var.get().strip(),
+            screen_model=self.asset_var.get().strip(),
             period=self.period_var.get(),
             date_from=self._parse_date(self.date_from_var.get()),
             date_to=self._parse_date(self.date_to_var.get()),
@@ -369,8 +390,11 @@ class HistoryScreen(BaseScreen):
                 display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{thai_year} {dt_obj.strftime('%H:%M:%S')}"
             except Exception:
                 display_date = eval_dt_str
-                
+
+            rank = database.get_eval_rank(r["screen_type"], r["period"], r["id"])
+
             self.tree.insert("", "end", iid=str(r["id"]), values=(
+                rank,
                 display_date,
                 r["hospital_name"],
                 type_map.get(r["screen_type"], r["screen_type"]),
@@ -378,7 +402,6 @@ class HistoryScreen(BaseScreen):
                 r["evaluator_name"],
                 r["screen_model"],
             ))
-
     def _selected_id(self):
         sel = self.tree.selection()
         return int(sel[0]) if sel else None

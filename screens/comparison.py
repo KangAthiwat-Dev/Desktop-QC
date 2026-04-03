@@ -171,12 +171,22 @@ class ComparisonScreen(BaseScreen):
             if not eid:
                 return "-"
             return _db.get_eval_rank(ev.get("screen_type", ""), ev.get("period", ""), eid)
+            
+        def _format_dt(dt_str):
+            if not dt_str: return ""
+            try:
+                import datetime
+                dt_obj = datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                thai_year = dt_obj.year + 543
+                return f"{dt_obj.day:02d}/{dt_obj.month:02d}/{thai_year} {dt_obj.strftime('%H:%M:%S')}"
+            except Exception:
+                return dt_str
 
         self.current_lbl.configure(
-            text=f"ครั้งที่ {_rank(current)} : {current.get('hospital_name','')}  {current.get('evaluator_name','')}  {current.get('eval_datetime','')}"
+            text=f"ครั้งที่ {_rank(current)} : {current.get('hospital_name','')}  {current.get('evaluator_name','')}  {_format_dt(current.get('eval_datetime',''))}"
         )
         self.baseline_lbl.configure(
-            text=f"Baseline (ครั้งที่ {_rank(baseline)}): {baseline.get('hospital_name','')}  {baseline.get('evaluator_name','')}  {baseline.get('eval_datetime','')}"
+            text=f"Baseline (ครั้งที่ {_rank(baseline)}): {baseline.get('hospital_name','')}  {baseline.get('evaluator_name','')}  {_format_dt(baseline.get('eval_datetime',''))}"
         )
 
         screen_type = current.get("screen_type") or baseline.get("screen_type", "")
