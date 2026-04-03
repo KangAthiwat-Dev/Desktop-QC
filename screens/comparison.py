@@ -35,7 +35,7 @@ CLR_NO_ANS   = "#94a3b8"   # ไม่มีข้อมูล – slate
 
 ALT_ROW      = "#f5f5f5"   # สีแถวสลับ (ขาวอมเทาอ่อน)
 
-_HEADS   = ["หัวข้อประเมิน", "Baseline", "Now",
+_HEADS   = ["หัวข้อประเมิน", "Baseline", "ครั้งที่",
             "ผลการเปรียบเทียบ", "คำอธิบายเพิ่มเติมจากการเปรียบเทียบ"]
 _WIDTHS_REF = [290, 140, 140, 320]   # reference widths at 1920×1080
 _ANCHORS = ["w", "center", "center", "w", "w"]

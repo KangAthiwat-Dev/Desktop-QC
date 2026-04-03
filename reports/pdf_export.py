@@ -232,7 +232,7 @@ def export_comparison(current: dict, baseline: dict, row_data: list, filepath: s
     data = [[
         _p("หัวข้อประเมิน",                      12, bold=True),
         _p("Baseline",                            12, bold=True, align="CENTER"),
-        _p("Now",                                 12, bold=True, align="CENTER"),
+        _p("ครั้งที่",                                 12, bold=True, align="CENTER"),
         _p("ผลการเปรียบเทียบ",                   12, bold=True),
         _p("คำอธิบายเพิ่มเติมจากการเปรียบเทียบ", 12, bold=True),
     ]]

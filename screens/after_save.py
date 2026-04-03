@@ -96,7 +96,7 @@ class AfterSaveScreen(BaseScreen):
 
         period_map = {
             "monthly":   "การประเมินประจำเดือน",
-            "quarterly": "การประเมินราย 3 เดือน",
+            "quarterly": "การประเมินประจำ 3 เดือน",
             "annual":    "การประเมินประจำปี",
         }
         self.period_lbl.configure(

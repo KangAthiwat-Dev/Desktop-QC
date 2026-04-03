@@ -124,7 +124,8 @@ class TestRunnerScreen(BaseScreen):
                 q_row, text=txt, variable=self._answer_var,
                 value=val, font=thai_font(self.fs(26)),
                 bg=CARD_COLOR, fg=TEXT_COLOR,
-                activebackground=CARD_COLOR, selectcolor=ENTRY_BG,
+                activebackground=CARD_COLOR, selectcolor="orange",
+                tristatevalue="none",
                 command=self._on_answer,
             ).pack(side="left", padx=16)
 

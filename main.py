@@ -1,6 +1,7 @@
 import tkinter as tk
 import os, shutil, platform
-
+import os
+print("PID:", os.getpid())
 
 def _fix_windows_dpi():
     """แก้ DPI scaling บน Windows ไม่ให้ขยาย UI อัตโนมัติ"""
