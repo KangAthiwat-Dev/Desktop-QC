@@ -361,8 +361,17 @@ class HistoryScreen(BaseScreen):
         period_map = {"monthly": "รายเดือน", "quarterly": "ราย 3 เดือน", "annual": "ประจำปี"}
 
         for r in rows:
+            eval_dt_str = r["eval_datetime"]
+            try:
+                # Expected format from DB: "YYYY-MM-DD HH:MM:SS"
+                dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+                thai_year = dt_obj.year + 543
+                display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{thai_year} {dt_obj.strftime('%H:%M:%S')}"
+            except Exception:
+                display_date = eval_dt_str
+                
             self.tree.insert("", "end", iid=str(r["id"]), values=(
-                r["eval_datetime"],
+                display_date,
                 r["hospital_name"],
                 type_map.get(r["screen_type"], r["screen_type"]),
                 period_map.get(r["period"], r["period"]),

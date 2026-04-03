@@ -59,7 +59,15 @@ class ConfirmScreen(BaseScreen):
         for key, lbl in self.info_labels.items():
             lbl.configure(text=session.get(key, ""))
 
-        self.dt_lbl.configure(text=f"วันที่และเวลาในการทดสอบ : {session.get('eval_datetime', '')}")
+        import datetime
+        eval_dt_str = session.get('eval_datetime', '')
+        try:
+            dt_obj = datetime.datetime.strptime(eval_dt_str, "%Y-%m-%d %H:%M:%S")
+            display_date = f"{dt_obj.day:02d}/{dt_obj.month:02d}/{dt_obj.year + 543} {dt_obj.strftime('%H:%M:%S')}"
+        except Exception:
+            display_date = eval_dt_str
+
+        self.dt_lbl.configure(text=f"วันที่และเวลาในการทดสอบ : {display_date}")
 
     def _edit(self):
         self.app.show("login")

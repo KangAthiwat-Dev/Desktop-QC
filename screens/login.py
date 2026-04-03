@@ -128,8 +128,9 @@ class LoginScreen(BaseScreen):
         self.error_lbl.configure(text="")
 
         now = datetime.now()
+        thai_year = now.year + 543
         self.dt_lbl.configure(
-            text=f"วันที่และเวลาในการทดสอบ : {now.strftime('%d/%m/%Y  %H:%M:%S')}")
+            text=f"วันที่และเวลาในการทดสอบ : {now.strftime('%d/%m/')}{thai_year}  {now.strftime('%H:%M:%S')}")
         session["eval_datetime"] = now.strftime("%Y-%m-%d %H:%M:%S")
 
     # ── actions ───────────────────────────────────────────────────────────────
