@@ -42,7 +42,7 @@ class AfterSaveScreen(BaseScreen):
         field_defs = [
             ("hospital",  "ชื่อโรงพยาบาล:"),
             ("evaluator", "ชื่อผู้ประเมิน:"),
-            ("model",     "ชื่อรุ่น/ยี่ห้อ/หมายเลขจอภาพที่ใช้ในการทดสอบ:"),
+            ("model",     "หมายเลขคุรุภัณฑ์:"),
             ("datetime",  "วันที่และเวลาในการทดสอบ:"),
         ]
         self._vals: dict[str, tk.Label] = {}

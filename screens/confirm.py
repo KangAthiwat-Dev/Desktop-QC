@@ -26,9 +26,9 @@ class ConfirmScreen(BaseScreen):
 
         self.info_labels: dict[str, tk.Label] = {}
         rows = [
-            ("ชื่อโรงพยาบาล :", "hospital_name"),
-            ("ชื่อผู้ประเมิน :", "evaluator_name"),
-            ("ชื่อรุ่น/รหัส/หมายเลขเครื่องที่ใช้ในการทดสอบ :", "screen_model"),
+            ("ชื่อโรงพยาบาล:", "hospital_name"),
+            ("ชื่อผู้ประเมิน:", "evaluator_name"),
+            ("หมายเลขคุรุภัณฑ์:", "screen_model"),
         ]
         for row, (lbl, key) in enumerate(rows):
             tk.Label(info, text=lbl, font=thai_font(self.fs(26)), bg=CARD_COLOR,
@@ -67,7 +67,7 @@ class ConfirmScreen(BaseScreen):
         except Exception:
             display_date = eval_dt_str
 
-        self.dt_lbl.configure(text=f"วันที่และเวลาในการทดสอบ : {display_date}")
+        self.dt_lbl.configure(text=f"วันที่และเวลาในการทดสอบ: {display_date}")
 
     def _edit(self):
         self.app.show("login")

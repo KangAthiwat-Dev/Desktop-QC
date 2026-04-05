@@ -232,7 +232,7 @@ def export_comparison(current: dict, baseline: dict, row_data: list, filepath: s
         base_disp_dt = base_dt_str
 
     now_txt  = f"ครั้งที่: {current.get('rank','')} |  {current.get('evaluator_name','')} | {curr_disp_dt}"
-    base_txt = f"ครั้งที่: {baseline.get('rank','')} |  {baseline.get('evaluator_name','')} | {base_disp_dt}"
+    base_txt = f"ครั้งที่ (Baseline): {baseline.get('rank','')} |  {baseline.get('evaluator_name','')} | {base_disp_dt}"
 
     story = [
         _p("รายงานการเปรียบเทียบกับผล", size=20, bold=True, align="CENTER"),
