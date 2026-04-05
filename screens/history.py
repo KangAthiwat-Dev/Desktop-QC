@@ -188,76 +188,65 @@ class HistoryScreen(BaseScreen):
         self.card_header(self, "ประวัติการทดสอบ", size=self.fs(24))
 
         # ── search bar ────────────────────────────────────────────────────
-        search_bar = tk.Frame(self, bg=BG_COLOR)
+        search_bar = tk.Frame(self, bg=CARD_COLOR, bd=1, relief="solid")
         search_bar.pack(fill="x", padx=20, pady=(8, 4))
         
-        search_row1 = tk.Frame(search_bar, bg=BG_COLOR)
-        search_row1.pack(fill="x", pady=4)
-        
-        f1 = tk.Frame(search_row1, bg=BG_COLOR)
-        f1.pack(side="left", fill="x", expand=True, padx=4)
-        tk.Label(f1, text="ชื่อผู้ประเมิน:", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
+        search_inner = tk.Frame(search_bar, bg=CARD_COLOR)
+        search_inner.pack(fill="x", expand=True, padx=16, pady=12)
+
+        # Configure columns to distribute space evenly
+        for i in range(6):
+            search_inner.columnconfigure(i, weight=1 if i % 2 != 0 else 0)
+
+        # Row 1
+        tk.Label(search_inner, text="ชื่อผู้ประเมิน:", font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR).grid(row=0, column=0, sticky="e", padx=(0, 8), pady=8)
         self.evaluator_var = tk.StringVar()
-        tk.Entry(f1, textvariable=self.evaluator_var,
-                 font=thai_font(self.fs(26)), bg="#ffffff", relief="sunken", bd=2).pack(side="left", fill="x", expand=True, padx=(4, 0))
-        
-        f2 = tk.Frame(search_row1, bg=BG_COLOR)
-        f2.pack(side="left", fill="x", expand=True, padx=4)
-        tk.Label(f2, text="โรงพยาบาล:", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
+        tk.Entry(search_inner, textvariable=self.evaluator_var, font=thai_font(self.fs(22)), bg="#ffffff", relief="sunken", bd=1).grid(row=0, column=1, sticky="ew", padx=(0, 24), pady=8)
+
+        tk.Label(search_inner, text="โรงพยาบาล:", font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR).grid(row=0, column=2, sticky="e", padx=(0, 8), pady=8)
         self.hospital_var = tk.StringVar()
-        tk.Entry(f2, textvariable=self.hospital_var,
-                 font=thai_font(self.fs(26)), bg="#ffffff", relief="sunken", bd=2).pack(side="left", fill="x", expand=True, padx=(4, 0))
+        tk.Entry(search_inner, textvariable=self.hospital_var, font=thai_font(self.fs(22)), bg="#ffffff", relief="sunken", bd=1).grid(row=0, column=3, sticky="ew", padx=(0, 24), pady=8)
 
-        f3 = tk.Frame(search_row1, bg=BG_COLOR)
-        f3.pack(side="left", fill="x", expand=True, padx=4)
-        tk.Label(f3, text="คุรุภัณฑ์:", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
+        tk.Label(search_inner, text="คุรุภัณฑ์:", font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR).grid(row=0, column=4, sticky="e", padx=(0, 8), pady=8)
         self.asset_var = tk.StringVar()
-        tk.Entry(f3, textvariable=self.asset_var,
-                 font=thai_font(self.fs(26)), bg="#ffffff", relief="sunken", bd=2).pack(side="left", fill="x", expand=True, padx=(4, 0))
-        
-        search_row2 = tk.Frame(search_bar, bg=BG_COLOR)
-        search_row2.pack(fill="x", pady=4)
+        tk.Entry(search_inner, textvariable=self.asset_var, font=thai_font(self.fs(22)), bg="#ffffff", relief="sunken", bd=1).grid(row=0, column=5, sticky="ew", padx=(0, 0), pady=8)
 
-        f4 = tk.Frame(search_row2, bg=BG_COLOR)
-        f4.pack(side="left", fill="x", expand=True, padx=4)
-        tk.Label(f4, text="วันที่:", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
+        # Row 2
+        date_frame = tk.Frame(search_inner, bg=CARD_COLOR)
+        date_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=8)
+        
+        tk.Label(date_frame, text="วันที่:", font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(0, 8))
+        
         self.date_from_var = tk.StringVar()
-        tk.Entry(f4, textvariable=self.date_from_var,
-                 font=thai_font(self.fs(26)), width=10, bg="#ffffff", relief="sunken", bd=2, state="readonly",
-                 readonlybackground="#ffffff").pack(side="left", fill="x", expand=True, padx=(4, 2))
-        cal_from = tk.Label(f4, text="📅", font=thai_font(self.fs(22)), bg=BG_COLOR, cursor="hand2")
-        cal_from.pack(side="left", padx=(0, 4))
+        tk.Entry(date_frame, textvariable=self.date_from_var, font=thai_font(self.fs(22)), width=10, bg="#ffffff", relief="sunken", bd=1, state="readonly", readonlybackground="#ffffff").pack(side="left", fill="x", expand=True)
+        cal_from = tk.Label(date_frame, text="📅", font=thai_font(self.fs(18)), bg=CARD_COLOR, cursor="hand2")
+        cal_from.pack(side="left", padx=(4, 8))
         cal_from.bind("<ButtonRelease-1>", lambda _: _show_calendar(self.app, cal_from, self.date_from_var))
 
-        tk.Label(f4, text="ถึง", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(4, 2))
+        tk.Label(date_frame, text="ถึง", font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR).pack(side="left", padx=(0, 8))
+        
         self.date_to_var = tk.StringVar()
-        tk.Entry(f4, textvariable=self.date_to_var,
-                 font=thai_font(self.fs(26)), width=10, bg="#ffffff", relief="sunken", bd=2, state="readonly",
-                 readonlybackground="#ffffff").pack(side="left", fill="x", expand=True, padx=(2, 2))
-        cal_to = tk.Label(f4, text="📅", font=thai_font(self.fs(22)), bg=BG_COLOR, cursor="hand2")
-        cal_to.pack(side="left", padx=(0, 4))
+        tk.Entry(date_frame, textvariable=self.date_to_var, font=thai_font(self.fs(22)), width=10, bg="#ffffff", relief="sunken", bd=1, state="readonly", readonlybackground="#ffffff").pack(side="left", fill="x", expand=True)
+        cal_to = tk.Label(date_frame, text="📅", font=thai_font(self.fs(18)), bg=CARD_COLOR, cursor="hand2")
+        cal_to.pack(side="left", padx=(4, 0))
         cal_to.bind("<ButtonRelease-1>", lambda _: _show_calendar(self.app, cal_to, self.date_to_var))
 
-        f5 = tk.Frame(search_row2, bg=BG_COLOR)
-        f5.pack(side="left", fill="x", expand=True, padx=4)
-        tk.Label(f5, text="รอบ:", font=thai_font(self.fs(26)),
-                 bg=BG_COLOR, fg=TEXT_COLOR).pack(side="left")
+        tk.Label(search_inner, text="รอบ:", font=thai_font(self.fs(22)), bg=CARD_COLOR, fg=TEXT_COLOR).grid(row=1, column=2, sticky="e", padx=(0, 8), pady=8)
+        
+        period_frame = tk.Frame(search_inner, bg=CARD_COLOR)
+        period_frame.grid(row=1, column=3, sticky="ew", padx=(0, 24), pady=8)
         self.period_var = tk.StringVar(value="")
-        period_choices = [("ทั้งหมด", "")] + [(v, k) for k, v in PERIOD_LABELS.items()]
-        self._period_menu = self._build_optionmenu(f5, self.period_var, period_choices)
-        self._period_menu.pack(side="left", fill="both", expand=True, padx=(4, 0))
+        period_choices = [("ทั้งหมด", "")] + [(v, k) for k, v in PERIODS.items()] if 'PERIODS' in globals() else [("ทั้งหมด", "")] + [(v, k) for k, v in PERIOD_LABELS.items()]
+        self._period_menu = self._build_optionmenu(period_frame, self.period_var, period_choices)
+        self._period_menu.pack(fill="x", expand=True)
 
-        f6 = tk.Frame(search_row2, bg=BG_COLOR)
-        f6.pack(side="right", padx=4)
-        search_icon = tk.Label(f6, text="🔍 ค้นหา", font=thai_font(self.fs(26)),
-                               bg=CARD_COLOR, cursor="hand2", padx=20, pady=2, relief="raised", bd=1)
+        search_btn_frame = tk.Frame(search_inner, bg=CARD_COLOR)
+        search_btn_frame.grid(row=1, column=4, columnspan=2, sticky="e", pady=8)
+        search_icon = tk.Label(search_btn_frame, text="🔍 ค้นหา", font=thai_font(self.fs(22), "bold"), bg=BTN_BG, fg="white", cursor="hand2", padx=24, pady=4, relief="flat")
         search_icon.pack(side="right")
         search_icon.bind("<ButtonRelease-1>", lambda _: self._search())
+        search_icon.bind("<Enter>", lambda e: e.widget.configure(bg=BTN_ACTIVE))
+        search_icon.bind("<Leave>", lambda e: e.widget.configure(bg=BTN_BG))
 
         # ── table ─────────────────────────────────────────────────────────
         table_frame = tk.Frame(self, bg=BG_COLOR)

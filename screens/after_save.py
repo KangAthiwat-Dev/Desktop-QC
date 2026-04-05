@@ -65,15 +65,15 @@ class AfterSaveScreen(BaseScreen):
         btn_bar.pack(side="bottom", fill="x", padx=16, pady=16)
 
         self.back_btn(btn_bar, "กลับหน้าหลัก",
-                      self._home, fontsize=self.fs(26), width=20).pack(side="left", padx=4)
+                      self._home, fontsize=self.fs(26), width=15).pack(side="left", padx=4)
 
         left_btns = tk.Frame(btn_bar, bg=CARD_COLOR)
         left_btns.pack(side="right")
 
-        self.primary_btn(left_btns, "เกณฑ์และวิธีการแก้ไขปัญหา",
-                         self._view_results, fontsize=self.fs(26), width=20).pack(side="right", padx=4)
         self.primary_btn(left_btns, "ทำการเทียบกับ Baseline",
                          self._compare, fontsize=self.fs(26), width=18).pack(side="right", padx=4)
+        self.primary_btn(left_btns, "เกณฑ์และวิธีการแก้ไขปัญหา",
+                         self._view_results, fontsize=self.fs(26), width=20).pack(side="right", padx=4)
 
     # ── on_show ───────────────────────────────────────────────────────────
 
