@@ -41,8 +41,11 @@ def _install_font():
         # โหลด font เข้า GDI (ไม่ต้องสิทธิ์ admin) เพื่อให้ tkinter เห็น
         try:
             import ctypes
-            # FR_PRIVATE (0x10) → process-private
-            ctypes.windll.gdi32.AddFontResourceExW(ctypes.c_wchar_p(src), 0x10, 0)
+            import atexit
+            # ใช้ AddFontResourceW (Global ชั่วคราว) เพื่อให้ Uniscribe จัดการสระ/วรรณยุกต์ภาษาไทยได้ถูกต้อง
+            # หากใช้ FR_PRIVATE (0x10) ระบบ Shaping ของ Windows จะมองไม่เห็น ทำให้สระลอย
+            ctypes.windll.gdi32.AddFontResourceW(ctypes.c_wchar_p(src))
+            atexit.register(lambda: ctypes.windll.gdi32.RemoveFontResourceW(ctypes.c_wchar_p(src)))
         except Exception as e:
             print(f"Windows font load error: {e}")
 
